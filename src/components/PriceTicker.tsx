@@ -24,10 +24,11 @@ export const PriceTicker: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchPrices = async () => {
+  const fetchPrices = async (force = false) => {
     try {
       setRefreshing(true);
-      const res = await fetch(`${API_BASE_URL}/api/market-prices`);
+      const url = `${API_BASE_URL}/api/market-prices${force ? '?force=true' : ''}`;
+      const res = await fetch(url);
       if (res.ok) {
         const data = await res.json();
         setPrices(data);
@@ -41,7 +42,8 @@ export const PriceTicker: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchPrices();
+    const loadPrices = async () => { await fetchPrices(); };
+    loadPrices();
     // Actualizar cada 2 minutos
     const interval = setInterval(fetchPrices, 120000);
     return () => clearInterval(interval);
@@ -96,10 +98,10 @@ export const PriceTicker: React.FC = () => {
       {prices && (
         <div className="hidden md:flex items-center px-4 border-l border-slate-800 text-[10px] text-slate-400 gap-2 whitespace-nowrap h-full">
           <span>
-            {t.tickerUpdated}: {formatTime(prices.last_updated)}
+            {t.tickerUpdated}: {formatTime(prices.last_updated)} | {locale === 'es' ? 'Fuente: ICE' : 'Source: ICE'}
           </span>
           <button
-            onClick={fetchPrices}
+            onClick={() => fetchPrices(true)}
             disabled={refreshing}
             className={`hover:text-white transition-colors cursor-pointer ${refreshing ? 'animate-spin' : ''}`}
             title={locale === 'es' ? 'Refrescar Precios' : 'Refresh Prices'}

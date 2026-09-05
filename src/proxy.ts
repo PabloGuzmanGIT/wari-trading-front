@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Next.js 16: "middleware" pasó a llamarse "proxy" (misma funcionalidad).
+// https://nextjs.org/docs/app/api-reference/file-conventions/proxy
+
 const locales = ['es', 'en'];
 const defaultLocale = 'es';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Evitar interceptar archivos estáticos, apis y recursos de next (como favicon, manifest, etc.)
@@ -13,8 +16,12 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/api') ||
     pathname.includes('.') ||
     pathname === '/favicon.ico' ||
-    pathname === '/manifest.json' ||
-    pathname === '/sw.js'
+    pathname === '/manifest.webmanifest' ||
+    pathname === '/sw.js' ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/llms.txt' ||
+    pathname === '/opengraph-image'
   ) {
     return;
   }
@@ -49,6 +56,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Interceptar todos los paths excepto los que contengan "." (archivos) u otros excluidos
-    '/((?!_next|api|favicon.ico|manifest.json|sw.js|.*\\.).*)',
+    '/((?!_next|api|favicon.ico|manifest.webmanifest|sw.js|.*\\.).*)',
   ],
 };

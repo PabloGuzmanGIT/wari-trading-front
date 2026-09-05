@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 export const PwaRegister: React.FC = () => {
   useEffect(() => {
     if (process.env.NODE_ENV === 'production') {
-      if ('serviceWorker' in navigator && (window as any).workbox === undefined) {
+      if ('serviceWorker' in navigator && (window as unknown as { workbox?: unknown }).workbox === undefined) {
         window.addEventListener('load', () => {
           navigator.serviceWorker
             .register('/sw.js')

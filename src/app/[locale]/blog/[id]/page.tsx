@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { FiCalendar, FiUser, FiArrowLeft, FiTag } from 'react-icons/fi';
-import { API_BASE_URL, SITE_URL } from '@/lib/config';
+import { API_BASE_URL } from '@/lib/config';
+import { SITE_URL, company } from '@/lib/company';
 
 interface BlogPost {
   id: number;
@@ -37,15 +38,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, id } = await params;
   const post = await getPost(id, locale);
   if (!post) {
-    return { title: 'Wari Trading S.A.C.' };
+    return { title: company.name };
   }
 
   const url = `${SITE_URL}/${locale}/blog/${post.id}`;
-  const title = `${post.title} | Wari Trading S.A.C.`;
+  const title = `${post.title} | ${company.name}`;
 
   return {
     title,
     description: post.summary,
+    // Sin hreflang a propósito: cada post es una fila con id + locale propios
+    // (backend: blog_posts). No hay forma fiable de mapear el id de la versión ES
+    // a la EN, así que solo declaramos canonical autorreferente.
     alternates: { canonical: url },
     openGraph: {
       title: post.title,
@@ -66,7 +70,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogDetailPage({ params }: Props) {
-  const { locale, id } = await params;
+  const { locale: rawLocale, id } = await params;
+  const locale: 'es' | 'en' = (rawLocale === 'es' || rawLocale === 'en') ? rawLocale : 'es';
   const isEs = locale === 'es';
   const post = await getPost(id, locale);
 
@@ -92,8 +97,8 @@ export default async function BlogDetailPage({ params }: Props) {
     author: { '@type': 'Person', name: post.author },
     publisher: {
       '@type': 'Organization',
-      name: 'Wari Trading S.A.C.',
-      logo: { '@type': 'ImageObject', url: `${SITE_URL}/logo.png` },
+      name: company.legalName,
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.svg` },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   };
@@ -164,7 +169,7 @@ export default async function BlogDetailPage({ params }: Props) {
               />
             </div>
             <p className="text-[10px] text-center text-slate-400 italic mt-2">
-              {isEs ? 'Fotografía de campo. Wari Trading S.A.C.' : 'Field photograph. Wari Trading S.A.C.'}
+              {isEs ? `Fotografía de campo. ${company.name}` : `Field photograph. ${company.name}`}
             </p>
           </div>
         )}

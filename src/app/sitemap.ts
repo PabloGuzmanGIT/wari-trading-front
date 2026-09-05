@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { API_BASE_URL, SITE_URL } from '@/lib/config';
 
 const LOCALES = ['es', 'en'] as const;
-const STATIC_ROUTES = ['', '/blog', '/demand-board', '/traceability'] as const;
+const STATIC_ROUTES = ['', '/blog', '/traceability'] as const;
 
 interface BlogPostSummary {
   id: number;
@@ -25,15 +25,21 @@ async function getBlogPosts(locale: string): Promise<BlogPostSummary[]> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
-  for (const locale of LOCALES) {
-    for (const route of STATIC_ROUTES) {
-      entries.push({
-        url: `${SITE_URL}/${locale}${route}`,
-        changeFrequency: route === '' ? 'weekly' : 'daily',
-        priority: route === '' ? 1 : 0.7,
-      });
-    }
+  for (const route of STATIC_ROUTES) {
+    entries.push({
+      url: `${SITE_URL}/es${route}`,
+      changeFrequency: route === '' ? 'weekly' : route === '/blog' ? 'daily' : 'monthly',
+      priority: route === '' ? 1 : 0.7,
+      alternates: {
+        languages: {
+          es: `${SITE_URL}/es${route}`,
+          en: `${SITE_URL}/en${route}`,
+        },
+      },
+    });
+  }
 
+  for (const locale of LOCALES) {
     const posts = await getBlogPosts(locale);
     for (const post of posts) {
       entries.push({

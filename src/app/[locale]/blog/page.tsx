@@ -2,7 +2,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { translations } from '@/locales/translations';
 import { FiCalendar, FiUser, FiArrowLeft, FiArrowRight } from 'react-icons/fi';
-import { API_BASE_URL, SITE_URL } from '@/lib/config';
+import { API_BASE_URL } from '@/lib/config';
+import { SITE_URL, company } from '@/lib/company';
 
 interface BlogPost {
   id: number;
@@ -36,24 +37,32 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const isEs = locale === 'es';
   const title = isEs
-    ? 'Noticias y Blog | Wari Trading S.A.C.'
-    : 'News and Blog | Wari Trading S.A.C.';
+    ? `Notas de mercado | ${company.name}`
+    : `Market notes | ${company.name}`;
   const description = isEs
-    ? 'Información corporativa, historias de impacto social con DEVIDA y novedades agrícolas de Wari Trading.'
-    : 'Corporate news, social impact stories with DEVIDA, and agricultural updates from Wari Trading.';
+    ? 'Precios del café y cacao en el VRAEM, calendario de cosecha, EUDR y cómo compramos en origen.'
+    : 'VRAEM coffee and cocoa prices, harvest calendar, EUDR, and how we buy at origin.';
   const url = `${SITE_URL}/${locale}/blog`;
 
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: {
+      canonical: url,
+      languages: {
+        es: `${SITE_URL}/es/blog`,
+        en: `${SITE_URL}/en/blog`,
+        'x-default': `${SITE_URL}/es/blog`,
+      },
+    },
     openGraph: { title, description, url, type: 'website' },
     twitter: { card: 'summary', title, description },
   };
 }
 
 export default async function BlogListingPage({ params }: Props) {
-  const { locale } = await params;
+  const { locale: rawLocale } = await params;
+  const locale: 'es' | 'en' = (rawLocale === 'es' || rawLocale === 'en') ? rawLocale : 'es';
   const isEs = locale === 'es';
   const t = translations[locale];
   const posts = await getPosts(locale);
@@ -78,8 +87,8 @@ export default async function BlogListingPage({ params }: Props) {
           </h1>
           <p className="text-slate-500 text-sm sm:text-base max-w-2xl">
             {isEs
-              ? 'Información corporativa, historias de impacto social con DEVIDA y novedades agrícolas de Wari Trading.'
-              : 'Corporate news, social impact stories with DEVIDA, and agricultural updates from Wari Trading.'}
+              ? 'Precios del café y cacao en el VRAEM, calendario de cosecha, EUDR y cómo compramos en origen.'
+              : 'VRAEM coffee and cocoa prices, harvest calendar, EUDR, and how we buy at origin.'}
           </p>
         </div>
 
@@ -103,7 +112,7 @@ export default async function BlogListingPage({ params }: Props) {
                 </Link>
 
                 {/* Info */}
-                <div className="p-6 flex flex-col flex-1">
+                <div className="p-6 md:p-8 flex flex-col flex-1">
                   <div className="flex items-center gap-4 text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-3">
                     <span className="flex items-center gap-1">
                       <FiCalendar />

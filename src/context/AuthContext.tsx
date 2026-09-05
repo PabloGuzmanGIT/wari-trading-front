@@ -30,14 +30,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     // Cargar credenciales desde localStorage si existen al montar el componente
-    const storedToken = localStorage.getItem('hy_token');
-    const storedUser = localStorage.getItem('hy_user');
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
+    const hydrateFromStorage = () => {
+      const storedToken = localStorage.getItem('hy_token');
+      const storedUser = localStorage.getItem('hy_user');
+
+      if (storedToken && storedUser) {
+        setToken(storedToken);
+        setUser(JSON.parse(storedUser));
+      }
+      setIsLoading(false);
+    };
+    hydrateFromStorage();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {

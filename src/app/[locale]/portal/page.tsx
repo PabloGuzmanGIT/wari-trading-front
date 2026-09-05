@@ -5,15 +5,16 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { translations } from '@/locales/translations';
 import { useAuth } from '@/context/AuthContext';
-import { 
-  FiArrowLeft, FiUser, FiMail, FiPlus, FiLogOut, FiCheckCircle, 
-  FiPackage, FiGlobe, FiDatabase, FiAward 
+import {
+  FiArrowLeft, FiUser, FiMail, FiPlus, FiLogOut, FiCheckCircle,
+  FiPackage, FiGlobe, FiDatabase, FiAward, FiActivity
 } from 'react-icons/fi';
 import { API_BASE_URL } from '@/lib/config';
 
 export default function PortalPage() {
   const params = useParams();
-  const locale = (params?.locale as 'es' | 'en') || 'es';
+  const rawLocale = params?.locale as string;
+  const locale: 'es' | 'en' = (rawLocale === 'es' || rawLocale === 'en') ? rawLocale : 'es';
   const t = translations[locale];
 
   const { user, token, login, logout, isLoading } = useAuth();
@@ -34,6 +35,19 @@ export default function PortalPage() {
   const [prodPricePen, setProdPricePen] = useState('');
   const [prodLocation, setProdLocation] = useState('');
   const [prodStatusMsg, setProdStatusMsg] = useState('');
+
+  // Formulario de compra directa (Rol: Admin)
+  const [purchaseProducerName, setPurchaseProducerName] = useState('');
+  const [purchaseProduct, setPurchaseProduct] = useState('cafe_pergamino');
+  const [purchaseWeight, setPurchaseWeight] = useState('');
+  const [purchasePricePen, setPurchasePricePen] = useState('');
+  const [purchaseLocation, setPurchaseLocation] = useState('');
+  const [purchaseHumedad, setPurchaseHumedad] = useState('12.0');
+  const [purchaseComprador, setPurchaseComprador] = useState('');
+  const [purchasePrecioVenta, setPurchasePrecioVenta] = useState('');
+  const [purchaseStatusMsg, setPurchaseStatusMsg] = useState('');
+  const [purchaseErrorMsg, setPurchaseErrorMsg] = useState('');
+  const [purchaseLoading, setPurchaseLoading] = useState(false);
 
   // Action state for Admin negotiation
   const [negotiatingLotId, setNegotiatingLotId] = useState<number | null>(null);
@@ -60,11 +74,14 @@ export default function PortalPage() {
   };
 
   useEffect(() => {
-    if (token) {
-      fetchPortalData();
-    } else {
-      setPortalData(null);
-    }
+    const syncPortalData = async () => {
+      if (token) {
+        await fetchPortalData();
+      } else {
+        setPortalData(null);
+      }
+    };
+    syncPortalData();
   }, [token]);
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -87,7 +104,7 @@ export default function PortalPage() {
   const handleAddHarvest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodWeight) return;
-    
+
     setProdStatusMsg(locale === 'es' ? 'Registrando lote...' : 'Registering lot...');
     try {
       const res = await fetch(`${API_BASE_URL}/api/portal/harvest`, {
@@ -103,9 +120,9 @@ export default function PortalPage() {
           location: prodLocation || 'No especificada'
         })
       });
-      
+
       if (res.ok) {
-        setProdStatusMsg(locale === 'es' ? 'Lote registrado. Wari Trading revisará y negociará el precio contigo.' : 'Lot registered. Wari Trading will review and negotiate the price with you.');
+        setProdStatusMsg(locale === 'es' ? 'Lote registrado. Wari Trading Co revisará y negociará el precio contigo.' : 'Lot registered. Wari Trading Co will review and negotiate the price with you.');
         await fetchPortalData();
         setProdWeight('');
         setProdPricePen('');
@@ -118,6 +135,62 @@ export default function PortalPage() {
       setProdStatusMsg(locale === 'es' ? 'Error de conexión.' : 'Connection error.');
     } finally {
       setTimeout(() => setProdStatusMsg(''), 3500);
+    }
+  };
+
+  const handleDirectPurchaseSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!purchaseProducerName || !purchaseWeight || !purchasePricePen) {
+      setPurchaseErrorMsg(locale === 'es' ? 'Faltan campos obligatorios.' : 'Missing required fields.');
+      return;
+    }
+
+    setPurchaseLoading(true);
+    setPurchaseErrorMsg('');
+    setPurchaseStatusMsg(locale === 'es' ? 'Registrando compra...' : 'Registering purchase...');
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/portal/direct-purchase`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          producer_name: purchaseProducerName,
+          product: purchaseProduct,
+          weight_kg: parseFloat(purchaseWeight),
+          price_paid_pen_kg: parseFloat(purchasePricePen),
+          location: purchaseLocation || 'No especificada',
+          humedad_pct: purchaseHumedad ? parseFloat(purchaseHumedad) : null,
+          comprador: purchaseComprador || null,
+          precio_venta_pactado_skg: purchasePrecioVenta ? parseFloat(purchasePrecioVenta) : null
+        })
+      });
+
+      if (res.ok) {
+        setPurchaseStatusMsg(locale === 'es' ? '¡Compra registrada con éxito y sincronizada con el Dashboard!' : 'Purchase registered successfully and synced with Dashboard!');
+        setPurchaseProducerName('');
+        setPurchaseProduct('cafe_pergamino');
+        setPurchaseWeight('');
+        setPurchasePricePen('');
+        setPurchaseLocation('');
+        setPurchaseHumedad('12.0');
+        setPurchaseComprador('');
+        setPurchasePrecioVenta('');
+        await fetchPortalData();
+        setTimeout(() => setPurchaseStatusMsg(''), 4000);
+      } else {
+        const errData = await res.json();
+        setPurchaseErrorMsg(errData.detail || (locale === 'es' ? 'Error al registrar la compra.' : 'Error registering the purchase.'));
+        setPurchaseStatusMsg('');
+      }
+    } catch (err) {
+      console.error('Error submitting direct purchase:', err);
+      setPurchaseErrorMsg(locale === 'es' ? 'Error de conexión.' : 'Connection error.');
+      setPurchaseStatusMsg('');
+    } finally {
+      setPurchaseLoading(false);
     }
   };
 
@@ -153,7 +226,7 @@ export default function PortalPage() {
       alert(locale === 'es' ? 'Precio inválido' : 'Invalid price');
       return;
     }
-    
+
     await handleHarvestAction(harvestId, 'agree_price', price);
     setNegotiatingLotId(null);
     setNegotiatingPrice('');
@@ -168,9 +241,9 @@ export default function PortalPage() {
   }
 
   return (
-    <div className="section-padding bg-slate-50 flex-grow min-h-screen">
+    <div className="section-padding bg-slate-50 flex-grow min-h-screen p-8">
       <div className="container max-w-5xl">
-        
+
         {/* Back Link */}
         <Link
           href={`/${locale}`}
@@ -183,11 +256,11 @@ export default function PortalPage() {
         {/* 1. VISTA DE INICIO DE SESIÓN */}
         {!token ? (
           <div className="grid lg:grid-cols-2 gap-12 items-start max-w-4xl mx-auto">
-            
+
             {/* Formulario */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-xl min-w-0">
               <div className="text-center mb-8">
-                <h1 className="text-2xl font-bold text-slate-900 mb-2">{t.portal.loginTitle}</h1>
+                <h1 className="text-2xl font-bold text-slate-900 mb-2 leading-tight">{t.portal.loginTitle}</h1>
                 <p className="text-xs text-slate-500">{t.portal.subtitle}</p>
               </div>
 
@@ -237,7 +310,7 @@ export default function PortalPage() {
 
             {/* Relleno de Credenciales Demo */}
             <div className="space-y-6 min-w-0">
-              <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-100/50 p-6 rounded-3xl shadow-sm">
+              <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-100/50 p-6 md:p-8 rounded-3xl shadow-sm">
                 <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-1.5">
                   <FiDatabase className="text-emerald-600" />
                   {t.portal.selectRole}
@@ -251,7 +324,7 @@ export default function PortalPage() {
                 <div className="space-y-3">
                   <button
                     onClick={() => handleDemoFill('admin@hallpayaku.com', 'admin123')}
-                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-3 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
                   >
                     <span>{t.portal.adminRole}</span>
                     <span className="text-[10px] text-slate-400">admin@hallpayaku.com</span>
@@ -259,7 +332,7 @@ export default function PortalPage() {
 
                   <button
                     onClick={() => handleDemoFill('productor@hallpayaku.com', 'productor123')}
-                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-3 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
                   >
                     <span>{t.portal.productorRole}</span>
                     <span className="text-[10px] text-slate-400">productor@hallpayaku.com</span>
@@ -267,7 +340,7 @@ export default function PortalPage() {
 
                   <button
                     onClick={() => handleDemoFill('comprador@hallpayaku.com', 'comprador123')}
-                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-3 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
+                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
                   >
                     <span>{t.portal.compradorRole}</span>
                     <span className="text-[10px] text-slate-400">comprador@hallpayaku.com</span>
@@ -278,17 +351,17 @@ export default function PortalPage() {
 
           </div>
         ) : (
-          
+
           // 2. VISTA DE DASHBOARD OPERATIVO AUTENTICADO
           <div className="space-y-8">
-            
+
             {/* Header de Sesión */}
-            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <span className="text-[10px] uppercase font-extrabold tracking-widest text-slate-400">
                   {locale === 'es' ? 'Sesión Activa' : 'Active Session'}
                 </span>
-                <h1 className="text-xl font-bold text-slate-900 mt-0.5">
+                <h1 className="text-xl font-bold text-slate-900 mt-0.5 leading-tight">
                   {t.portal.welcome} {locale === 'es' ? user?.name : user?.name_en}
                 </h1>
                 <div className="flex gap-2 items-center text-xs font-bold text-emerald-700 mt-1">
@@ -312,15 +385,38 @@ export default function PortalPage() {
               </div>
             ) : portalData ? (
               <div className="space-y-8">
-                
+
                 {/* 2.1 DASHBOARD ROL: ADMINISTRADOR */}
                 {user?.role === 'admin' && (
                   <div className="grid md:grid-cols-12 gap-8">
-                    
+
+                    {/* Banner de acceso al Dashboard Financiero */}
+                    <div className="md:col-span-12 bg-gradient-to-r from-emerald-600 to-cyan-600 p-6 md:p-8 rounded-3xl text-white shadow-lg flex flex-col md:flex-row justify-between items-center gap-6 h-auto">
+                      <div className="flex-1 min-w-0 pr-2">
+
+                        <h2 className="text-lg font-bold font-headings mb-1 flex items-center gap-2">
+                          <FiActivity />
+                          {locale === 'es' ? 'Dashboard Financiero y Control de Acopio' : 'Financial Dashboard & Acopio Control'}
+                        </h2>
+                        <p className="text-xs text-white/80 max-w-2xl m-0 leading-relaxed">
+                          {locale === 'es'
+                            ? 'Monitorea las cotizaciones en tiempo real de café y cacao, evalúa la rentabilidad del plan mensual, revisa las alertas operativas del semáforo de sensores y gestiona compras semanales.'
+                            : 'Monitor real-time prices for coffee and cocoa, evaluate monthly plan profitability, review operational warning sensors, and manage weekly purchases.'}
+                        </p>
+                      </div>
+                      <Link
+                        href={`/${locale}/dashboard`}
+                        className="bg-white hover:bg-slate-50 text-emerald-800 hover:text-emerald-900 font-bold text-xs px-6 py-3 rounded-full shadow-md no-underline transition-all shrink-0 cursor-pointer"
+                      >
+                        {locale === 'es' ? 'Ver Dashboard de Control' : 'View Control Dashboard'}
+                      </Link>
+                    </div>
+                    <h1>Prueba</h1>
+
                     {/* Estadísticas de la empresa */}
                     <div className="md:col-span-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
                       {Object.entries(portalData.stats || {}).map(([key, val]: any) => (
-                        <div key={key} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm text-center">
+                        <div key={key} className="bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm text-center">
                           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                             {key.replace(/_/g, ' ')}
                           </span>
@@ -332,7 +428,7 @@ export default function PortalPage() {
                     </div>
 
                     {/* Mensajes Recibidos (Inbox) */}
-                    <div className="md:col-span-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                    <div className="md:col-span-6 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                       <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
                         <FiMail className="text-emerald-600" />
                         {t.portal.adminInbox}
@@ -351,7 +447,7 @@ export default function PortalPage() {
                                 <strong>{t.contact.interest}:</strong> {msg.product_interest}
                                 {msg.volume_tons && <span> | <strong>{locale === 'es' ? 'Volumen' : 'Volume'}:</strong> {msg.volume_tons} TM</span>}
                               </div>
-                              <p className="text-slate-600 italic">"{msg.message}"</p>
+                              <p className="text-slate-600 italic">&ldquo;{msg.message}&rdquo;</p>
                             </div>
                           ))
                         ) : (
@@ -361,7 +457,7 @@ export default function PortalPage() {
                     </div>
 
                     {/* Tablero Completo de Demandas B2B (Muestra nombres y correos corporativos!) */}
-                    <div className="md:col-span-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                    <div className="md:col-span-6 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                       <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
                         <FiDatabase className="text-cyan-600" />
                         {t.portal.adminDemands}
@@ -385,8 +481,168 @@ export default function PortalPage() {
                       </div>
                     </div>
 
+                    {/* Registrar Compra Directa */}
+                    <div className="md:col-span-12 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                      <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5 leading-snug">
+                        <FiPlus className="text-emerald-600" />
+                        {locale === 'es' ? 'Registrar Compra Directa (Acopio en Planta)' : 'Register Direct Purchase (Plant Acopio)'}
+                      </h3>
+                      <p className="text-[10px] text-slate-400">
+                        {locale === 'es'
+                          ? 'Registra las compras físicas realizadas a productores que no usaron la PWA para proponer su entrega. Esta acción generará automáticamente un lote de compra en el Dashboard de Control.'
+                          : 'Register physical purchases from producers who did not use the PWA for their delivery. This action will automatically create a purchase batch in the Control Dashboard.'}
+                      </p>
+
+                      {purchaseStatusMsg && (
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 flex items-center gap-2 text-emerald-800">
+                          <FiCheckCircle size={16} className="text-emerald-600 flex-shrink-0" />
+                          <p className="text-xs font-bold">{purchaseStatusMsg}</p>
+                        </div>
+                      )}
+
+                      {purchaseErrorMsg && (
+                        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2 text-red-800">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                          <p className="text-xs font-bold">{purchaseErrorMsg}</p>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleDirectPurchaseSubmit} className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Productor / Proveedor *' : 'Producer / Supplier *'}
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={purchaseProducerName}
+                              onChange={(e) => setPurchaseProducerName(e.target.value)}
+                              placeholder={locale === 'es' ? 'Nombre o Cooperativa' : 'Name or Cooperative'}
+                              className="form-input text-xs"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Producto *' : 'Product *'}
+                            </label>
+                            <select
+                              value={purchaseProduct}
+                              onChange={(e) => setPurchaseProduct(e.target.value)}
+                              className="form-input text-xs cursor-pointer"
+                            >
+                              <option value="cafe_pergamino">{locale === 'es' ? 'Café Pergamino Especial' : 'Special Parchment Coffee'}</option>
+                              <option value="cacao_conv">{locale === 'es' ? 'Cacao Criollo Convencional' : 'Conventional Criollo Cocoa'}</option>
+                              <option value="cacao_fino">{locale === 'es' ? 'Cacao Fino de Aroma' : 'Fine Aroma Cocoa'}</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Peso Neto (kg) *' : 'Net Weight (kg) *'}
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              min="1"
+                              value={purchaseWeight}
+                              onChange={(e) => setPurchaseWeight(e.target.value)}
+                              placeholder="Ej: 1200"
+                              className="form-input text-xs"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Precio de Compra (S/. por kg) *' : 'Purchase Price (S/. per kg) *'}
+                            </label>
+                            <input
+                              type="number"
+                              required
+                              step="0.01"
+                              min="0.01"
+                              value={purchasePricePen}
+                              onChange={(e) => setPurchasePricePen(e.target.value)}
+                              placeholder="Ej: 14.50"
+                              className="form-input text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Lugar de Acopio' : 'Acopio Location'}
+                            </label>
+                            <input
+                              type="text"
+                              value={purchaseLocation}
+                              onChange={(e) => setPurchaseLocation(e.target.value)}
+                              placeholder="Ej: Pichari, VRAEM"
+                              className="form-input text-xs"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Porcentaje Humedad %' : 'Moisture %'}
+                            </label>
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={purchaseHumedad}
+                              onChange={(e) => setPurchaseHumedad(e.target.value)}
+                              placeholder="Ej: 12.0"
+                              className="form-input text-xs"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Calzar con Comprador' : 'Match with Buyer'}
+                            </label>
+                            <input
+                              type="text"
+                              value={purchaseComprador}
+                              onChange={(e) => setPurchaseComprador(e.target.value)}
+                              placeholder="Ej: EuroFoods AG (opcional)"
+                              className="form-input text-xs"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                              {locale === 'es' ? 'Precio Venta Comprometido' : 'Committed Selling Price'}
+                            </label>
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={purchasePrecioVenta}
+                              onChange={(e) => setPurchasePrecioVenta(e.target.value)}
+                              placeholder="Ej: 18.20 (opcional)"
+                              className="form-input text-xs"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                          <button
+                            type="submit"
+                            disabled={purchaseLoading}
+                            className="btn-primary !text-xs !py-2.5 !px-6 cursor-pointer flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+                          >
+                            <FiPlus size={14} />
+                            {purchaseLoading
+                              ? (locale === 'es' ? 'Registrando...' : 'Registering...')
+                              : (locale === 'es' ? 'Registrar Compra y Sincronizar' : 'Register Purchase & Sync')}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
                     {/* Gestión de Cosechas y Ofertas de Productores */}
-                    <div className="md:col-span-12 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                    <div className="md:col-span-12 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                       <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
                         <FiPackage className="text-emerald-600" />
                         {locale === 'es' ? 'Gestión de Cosechas y Ofertas de Productores' : 'Producer Harvests & Offers Management'}
@@ -490,7 +746,7 @@ export default function PortalPage() {
                                                 {locale === 'es' ? 'Negociar' : 'Negotiate'}
                                               </button>
                                             )}
-                                            
+
                                             {(del.status === 'Registrado' || del.status === 'En Negociación') && (
                                               <button
                                                 onClick={() => handleHarvestAgreePrice(del.id, del.proposed_price_pen_kg)}
@@ -508,7 +764,7 @@ export default function PortalPage() {
                                                 {locale === 'es' ? 'Completar' : 'Complete'}
                                               </button>
                                             )}
-                                            
+
                                             {del.status === 'Completado' && (
                                               <span className="text-[10px] font-bold text-emerald-600 inline-flex items-center gap-1">
                                                 <FiCheckCircle /> {locale === 'es' ? 'Listo' : 'Done'}
@@ -537,9 +793,9 @@ export default function PortalPage() {
                 {/* 2.2 DASHBOARD ROL: PRODUCTOR */}
                 {user?.role === 'productor' && (
                   <div className="grid md:grid-cols-12 gap-8">
-                    
+
                     {/* Detalles de Cooperativa */}
-                    <div className="md:col-span-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div className="md:col-span-4 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4 flex flex-col justify-between">
                       <div>
                         <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
                           <FiAward className="text-emerald-600" />
@@ -584,8 +840,8 @@ export default function PortalPage() {
                     </div>
 
                     {/* Entregas y Registro */}
-                    <div className="md:col-span-8 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-6">
-                      
+                    <div className="md:col-span-8 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-6">
+
                       {/* Registro de Cosecha / Venta */}
                       <div>
                         <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5 mb-1">
@@ -594,8 +850,8 @@ export default function PortalPage() {
                         </h3>
                         <p className="text-[10px] text-slate-400 mb-4">
                           {locale === 'es'
-                            ? 'Registra el stock disponible para venta. Wari Trading revisará tu oferta y negociará el precio final contigo directamente.'
-                            : 'Register the stock available for sale. Wari Trading will review your offer and negotiate the final price directly with you.'}
+                            ? 'Registra el stock disponible para venta. Wari Trading Co revisará tu oferta y negociará el precio final contigo directamente.'
+                            : 'Register the stock available for sale. Wari Trading Co will review your offer and negotiate the final price directly with you.'}
                         </p>
 
                         {prodStatusMsg ? (
@@ -641,8 +897,8 @@ export default function PortalPage() {
                             </div>
                             <p className="text-[10px] text-slate-400 italic">
                               {locale === 'es'
-                                ? 'El precio indicado es una propuesta. Wari Trading negociará el precio final antes de confirmar el acuerdo de compra.'
-                                : 'The indicated price is a proposal. Wari Trading will negotiate the final price before confirming the purchase agreement.'}
+                                ? 'El precio indicado es una propuesta. Wari Trading Co negociará el precio final antes de confirmar el acuerdo de compra.'
+                                : 'The indicated price is a proposal. Wari Trading Co will negotiate the final price before confirming the purchase agreement.'}
                             </p>
                             <button type="submit" className="btn-primary !text-xs !py-2.5 !px-5 cursor-pointer flex items-center gap-1.5">
                               <FiPlus size={13} />
@@ -730,9 +986,9 @@ export default function PortalPage() {
                 {/* 2.3 DASHBOARD ROL: COMPRADOR */}
                 {user?.role === 'comprador' && (
                   <div className="grid md:grid-cols-12 gap-8">
-                    
+
                     {/* Trazabilidad en tiempo real de embarques */}
-                    <div className="md:col-span-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                    <div className="md:col-span-6 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                       <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
                         <FiPackage className="text-emerald-600" />
                         {t.portal.compLogistics}
@@ -766,7 +1022,7 @@ export default function PortalPage() {
                     </div>
 
                     {/* Requerimientos del Comprador */}
-                    <div className="md:col-span-6 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-4">
+                    <div className="md:col-span-6 bg-white p-6 md:p-8 rounded-3xl border border-slate-100 shadow-sm space-y-4">
                       <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center gap-1.5">
                         <FiGlobe className="text-cyan-600" />
                         {t.portal.compMyActive}
@@ -790,10 +1046,10 @@ export default function PortalPage() {
                           <div className="space-y-3 py-8 text-center">
                             <p className="text-xs text-slate-500 italic">{t.portal.noDemands}</p>
                             <Link
-                              href={`/${locale}/demand-board`}
+                              href={`/${locale}#contact`}
                               className="btn-primary !text-xs !py-2 !px-4 inline-flex no-underline"
                             >
-                              {locale === 'es' ? 'Registrar Nueva Demanda' : 'Register New Requirement'}
+                              {locale === 'es' ? 'Enviar Requerimiento' : 'Send Requirement'}
                             </Link>
                           </div>
                         )}

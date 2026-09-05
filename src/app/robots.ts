@@ -7,9 +7,10 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/es/portal', '/en/portal'],
+        disallow: ['/es/portal', '/en/portal', '/es/dashboard', '/en/dashboard'],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }
