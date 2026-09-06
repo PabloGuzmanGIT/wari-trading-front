@@ -82,7 +82,7 @@ export default async function LocaleLayout({
     name: company.legalName,
     alternateName: company.name,
     url: SITE_URL,
-    logo: `${SITE_URL}/icon.svg`,
+    logo: `${SITE_URL}/icon-512.png`,
     description: company.description[locale],
     email: company.email.general,
     ...(company.phone ? { telephone: company.phone } : {}),

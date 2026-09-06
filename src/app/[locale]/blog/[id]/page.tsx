@@ -98,7 +98,7 @@ export default async function BlogDetailPage({ params }: Props) {
     publisher: {
       '@type': 'Organization',
       name: company.legalName,
-      logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon.svg` },
+      logo: { '@type': 'ImageObject', url: `${SITE_URL}/icon-512.png` },
     },
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
   };

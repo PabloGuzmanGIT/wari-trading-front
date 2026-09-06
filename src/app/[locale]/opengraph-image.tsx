@@ -5,6 +5,16 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const alt = company.name;
 
+// La marca (grano de café) como data URI, para el lockup del logo.
+const beanMark =
+  'data:image/svg+xml;base64,' +
+  Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 268 356">
+      <ellipse cx="134" cy="178" rx="134" ry="178" fill="#fbfbfa"/>
+      <path d="M134 51 C157 87 157 130 134 160 C111 190 111 210 134 217" fill="none" stroke="#2f5d50" stroke-width="16" stroke-linecap="round"/>
+    </svg>`,
+  ).toString('base64');
+
 export default async function OgImage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params;
   const locale = raw === 'en' ? 'en' : 'es';
@@ -24,8 +34,8 @@ export default async function OgImage({ params }: { params: Promise<{ locale: st
           fontFamily: 'sans-serif',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 10, background: '#2f5d50' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+          <img src={beanMark} width={44} height={58} alt="" />
           <div style={{ fontSize: 38, fontWeight: 800 }}>{company.name}</div>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
