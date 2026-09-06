@@ -31,8 +31,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Cargar credenciales desde localStorage si existen al montar el componente
     const hydrateFromStorage = () => {
-      const storedToken = localStorage.getItem('hy_token');
-      const storedUser = localStorage.getItem('hy_user');
+      const storedToken = localStorage.getItem('wari_token');
+      const storedUser = localStorage.getItem('wari_user');
 
       if (storedToken && storedUser) {
         setToken(storedToken);
@@ -64,8 +64,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(data.user);
 
       // Guardar en localStorage
-      localStorage.setItem('hy_token', data.access_token);
-      localStorage.setItem('hy_user', JSON.stringify(data.user));
+      localStorage.setItem('wari_token', data.access_token);
+      localStorage.setItem('wari_user', JSON.stringify(data.user));
       
       return true;
     } catch (error) {
@@ -77,8 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('hy_token');
-    localStorage.removeItem('hy_user');
+    localStorage.removeItem('wari_token');
+    localStorage.removeItem('wari_user');
   };
 
   const isAdmin = user?.role === 'admin';

@@ -35,6 +35,10 @@ yarn-error.log*
 # ...pero .env.example es una plantilla sin secretos: sí se versiona.
 !.env.example
 
+# Credenciales de desarrollo local (nunca versionar)
+CREDENCIALES.local.md
+*.local.md
+
 # vercel
 .vercel
 

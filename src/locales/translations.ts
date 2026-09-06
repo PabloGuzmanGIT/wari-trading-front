@@ -247,10 +247,6 @@ export const translations = {
     portal: {
       title: "Portal Operativo Wari Trading Co",
       subtitle: "Acceso protegido según su rol en la cadena comercial.",
-      selectRole: "Seleccione su Rol para Pruebas Demo",
-      adminRole: "Administrador (Wari Trading Co)",
-      productorRole: "Productor / Cooperativa",
-      compradorRole: "Comprador Internacional",
       loginTitle: "Iniciar Sesión",
       loginBtn: "Ingresar al Portal",
       logoutBtn: "Cerrar Sesión",
@@ -555,10 +551,6 @@ export const translations = {
     portal: {
       title: "Wari Trading Co Operations Portal",
       subtitle: "Protected access based on your role in the commercial chain.",
-      selectRole: "Select your Role for Demo Testing",
-      adminRole: "Administrator (Wari Trading Co)",
-      productorRole: "Producer / Cooperative",
-      compradorRole: "International Buyer",
       loginTitle: "Sign In",
       loginBtn: "Enter Portal",
       logoutBtn: "Sign Out",

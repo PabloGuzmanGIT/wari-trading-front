@@ -95,12 +95,6 @@ export default function PortalPage() {
     }
   };
 
-  const handleDemoFill = (demoEmail: string, demoPass: string) => {
-    setEmail(demoEmail);
-    setPassword(demoPass);
-    setLoginError(false);
-  };
-
   const handleAddHarvest = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodWeight) return;
@@ -255,7 +249,7 @@ export default function PortalPage() {
 
         {/* 1. VISTA DE INICIO DE SESIÓN */}
         {!token ? (
-          <div className="grid lg:grid-cols-2 gap-12 items-start max-w-4xl mx-auto">
+          <div className="max-w-md mx-auto">
 
             {/* Formulario */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 shadow-xl min-w-0">
@@ -306,47 +300,6 @@ export default function PortalPage() {
                   </p>
                 )}
               </form>
-            </div>
-
-            {/* Relleno de Credenciales Demo */}
-            <div className="space-y-6 min-w-0">
-              <div className="bg-gradient-to-r from-emerald-50 to-cyan-50 border border-emerald-100/50 p-6 md:p-8 rounded-3xl shadow-sm">
-                <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-1.5">
-                  <FiDatabase className="text-emerald-600" />
-                  {t.portal.selectRole}
-                </h3>
-                <p className="text-xs text-slate-500 mb-6">
-                  {locale === 'es'
-                    ? 'Haga clic en cualquiera de los roles para autocompletar las credenciales correspondientes a la simulación:'
-                    : 'Click any of the roles to autofill the corresponding credentials for the simulation:'}
-                </p>
-
-                <div className="space-y-3">
-                  <button
-                    onClick={() => handleDemoFill('admin@hallpayaku.com', 'admin123')}
-                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
-                  >
-                    <span>{t.portal.adminRole}</span>
-                    <span className="text-[10px] text-slate-400">admin@hallpayaku.com</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDemoFill('productor@hallpayaku.com', 'productor123')}
-                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
-                  >
-                    <span>{t.portal.productorRole}</span>
-                    <span className="text-[10px] text-slate-400">productor@hallpayaku.com</span>
-                  </button>
-
-                  <button
-                    onClick={() => handleDemoFill('comprador@hallpayaku.com', 'comprador123')}
-                    className="w-full bg-white hover:bg-slate-50 border border-slate-200 p-4 rounded-xl text-left text-xs font-bold text-slate-700 flex items-center justify-between cursor-pointer"
-                  >
-                    <span>{t.portal.compradorRole}</span>
-                    <span className="text-[10px] text-slate-400">comprador@hallpayaku.com</span>
-                  </button>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -411,7 +364,6 @@ export default function PortalPage() {
                         {locale === 'es' ? 'Ver Dashboard de Control' : 'View Control Dashboard'}
                       </Link>
                     </div>
-                    <h1>Prueba</h1>
 
                     {/* Estadísticas de la empresa */}
                     <div className="md:col-span-12 grid grid-cols-2 sm:grid-cols-4 gap-4">
