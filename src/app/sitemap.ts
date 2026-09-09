@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { API_BASE_URL, SITE_URL } from '@/lib/config';
+import { API_INTERNAL_URL, SITE_URL } from '@/lib/config';
 
 const LOCALES = ['es', 'en'] as const;
 const STATIC_ROUTES = ['', '/blog', '/traceability'] as const;
@@ -11,7 +11,7 @@ interface BlogPostSummary {
 
 async function getBlogPosts(locale: string): Promise<BlogPostSummary[]> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/blog?locale=${locale}`, {
+    const res = await fetch(`${API_INTERNAL_URL}/api/blog?locale=${locale}`, {
       next: { revalidate: 300 },
     });
     if (!res.ok) return [];

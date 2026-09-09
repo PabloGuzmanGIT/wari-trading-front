@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { FiCalendar, FiUser, FiArrowLeft, FiTag } from 'react-icons/fi';
-import { API_BASE_URL } from '@/lib/config';
+import { API_INTERNAL_URL } from '@/lib/config';
 import { SITE_URL, company } from '@/lib/company';
 
 interface BlogPost {
@@ -23,7 +23,7 @@ interface Props {
 
 async function getPost(id: string, locale: string): Promise<BlogPost | null> {
   try {
-    const res = await fetch(`${API_BASE_URL}/api/blog/${id}?locale=${locale}`, {
+    const res = await fetch(`${API_INTERNAL_URL}/api/blog/${id}?locale=${locale}`, {
       next: { revalidate: 300 },
     });
     if (!res.ok) return null;

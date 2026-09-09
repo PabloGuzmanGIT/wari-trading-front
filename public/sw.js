@@ -4,7 +4,7 @@
 //    Así el contenido nunca se queda "congelado" para visitantes recurrentes.
 //  - Estáticos de Next y assets propios: stale-while-revalidate.
 //  - Peticiones a la API y cross-origin: se dejan pasar sin tocar.
-const CACHE_NAME = 'wari-trading-foods-v2';
+const CACHE_NAME = 'wari-trading-foods-v3';
 const OFFLINE_URL = '/es';
 const PRECACHE_URLS = ['/es', '/en', '/manifest.webmanifest', '/icon.svg'];
 

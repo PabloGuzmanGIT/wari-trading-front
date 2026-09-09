@@ -22,22 +22,28 @@ import { dirname, join } from 'node:path';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 // Paleta de marca (misma que el sitio)
-const BG = '#0f172a'; // azul elefante oscuro
-const BEAN = '#fbfbfa'; // hueso
-const CREASE = '#2f5d50'; // verde
+const BG = '#0f172a'; // azul elefante oscuro (tinta)
+const SNOW = '#fbfbfa'; // hueso
+const RIVER = '#2f5d50'; // verde pino
+const RIVER_HI = '#6f9a8d'; // verde claro (brillo del río)
 
-/** Marca a sangre: grano de café pálido con la veta central en S sobre fondo oscuro. */
+// Marca «Cumbre»: sierra de tres picos y el río serpenteando por el valle central,
+// sobre fondo tinta. El perfil evoca la «W» de Wari; montaña + río, el VRAEM.
+// Formas planas sin contornos + una línea de corriente -> legible a 16 px.
+const CUMBRE = `
+  <path d="M-20 378 L84 200 L188 252 L256 168 L324 252 L428 200 L532 378 Z" fill="${SNOW}"/>
+  <path d="M-16 372 C70 350 120 360 182 342 C232 328 250 300 276 302 C316 306 340 356 400 368 C452 378 496 360 528 366 L528 452 C470 462 430 442 372 430 C320 419 288 452 250 452 C214 452 190 424 140 430 C84 437 30 456 -16 448 Z" fill="${RIVER}"/>
+  <path d="M-8 400 C74 380 126 390 186 374 C234 361 252 336 276 338 C314 342 338 384 396 396 C448 406 492 390 520 396" fill="none" stroke="${RIVER_HI}" stroke-width="9" stroke-linecap="round"/>`;
+
 const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="${BG}"/>
-  <ellipse cx="256" cy="256" rx="134" ry="178" fill="${BEAN}"/>
-  <path d="M256 98 C300 166 300 248 256 306 C212 364 212 402 256 414" fill="none" stroke="${CREASE}" stroke-width="30" stroke-linecap="round"/>
+  <rect width="512" height="512" fill="${BG}"/>${CUMBRE}
 </svg>`;
 
-/** Igual, pero con el grano más chico: queda dentro de la zona segura del recorte maskable. */
+/** Igual, compactado dentro de la zona segura (círculo central) del recorte maskable de Android. */
 const maskableSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" fill="${BG}"/>
-  <ellipse cx="256" cy="256" rx="104" ry="138" fill="${BEAN}"/>
-  <path d="M256 140 C290 192 290 256 256 300 C222 344 222 376 256 384" fill="none" stroke="${CREASE}" stroke-width="24" stroke-linecap="round"/>
+  <g transform="translate(97.28 97.28) scale(0.62)">${CUMBRE}
+  </g>
 </svg>`;
 
 const png = (svg, size) =>

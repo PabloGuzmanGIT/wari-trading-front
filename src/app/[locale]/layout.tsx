@@ -134,28 +134,33 @@ export default async function LocaleLayout({
     publisher: { "@id": `${SITE_URL}/#organization` },
   };
 
+  // Modelado como Service (no Product): es un acopiador/comercializador B2B sin
+  // precio fijo ni catálogo minorista. Un `Product` sin offers/review/aggregateRating
+  // se marca como inválido en el informe "Fragmentos de productos" de Search Console.
   const products = [
     {
-      "@type": "Product",
-      name: locale === "es" ? "Café pergamino del VRAEM" : "VRAEM parchment coffee",
-      category: "Green coffee / parchment coffee",
-      brand: { "@id": `${SITE_URL}/#organization` },
+      "@type": "Service",
+      "@id": `${SITE_URL}/#supply-coffee`,
+      name: locale === "es" ? "Abastecimiento de café pergamino del VRAEM" : "VRAEM parchment coffee sourcing",
+      serviceType: locale === "es" ? "Acopio y comercialización de café pergamino en volumen" : "Bulk parchment coffee sourcing and trading",
+      provider: { "@id": `${SITE_URL}/#organization` },
+      areaServed: ["PE", "Worldwide"],
       description:
         locale === "es"
           ? `Café pergamino en volumen del VRAEM (Ayacucho, Perú). Humedad 11–12%, sacos de yute 69 kg. Venta EXW Ayacucho / entrega Lima; exportación como café oro vía casa exportadora (FOB Callao). Hasta ${company.stats.coffeeTonsPerYear} TM/año.`
           : `Bulk parchment coffee from the VRAEM (Ayacucho, Peru). 11–12% moisture, 69 kg jute bags. Sold EXW Ayacucho / delivered Lima; exported as green coffee via export house (FOB Callao). Up to ${company.stats.coffeeTonsPerYear} MT/year.`,
-      areaServed: ["PE", "Worldwide"],
     },
     {
-      "@type": "Product",
-      name: locale === "es" ? "Cacao CCN-51 y corriente del VRAEM" : "VRAEM CCN-51 and common cocoa",
-      category: "Cocoa beans",
-      brand: { "@id": `${SITE_URL}/#organization` },
+      "@type": "Service",
+      "@id": `${SITE_URL}/#supply-cocoa`,
+      name: locale === "es" ? "Abastecimiento de cacao CCN-51 y corriente del VRAEM" : "VRAEM CCN-51 and common cocoa sourcing",
+      serviceType: locale === "es" ? "Acopio y comercialización de cacao en grano" : "Cocoa bean sourcing and trading",
+      provider: { "@id": `${SITE_URL}/#organization` },
+      areaServed: ["PE", "Worldwide"],
       description:
         locale === "es"
           ? `Cacao CCN-51 y cacao corriente / mezcla regional del VRAEM. Humedad < 7,5%, fermentación verificada, sacos de yute 64 kg. Hasta ${company.stats.cocoaTonsPerYear} TM/año.`
           : `CCN-51 and common / regional-blend cocoa from the VRAEM. < 7.5% moisture, verified fermentation, 64 kg jute bags. Up to ${company.stats.cocoaTonsPerYear} MT/year.`,
-      areaServed: ["PE", "Worldwide"],
     },
   ];
 
