@@ -14,9 +14,10 @@ export const Certifications: React.FC<{ locale: Locale }> = ({ locale }) => {
 
         <p className="text-slate-600 leading-relaxed text-center max-w-2xl mx-auto mb-8">{t.bridge}</p>
 
-        <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">{t.coopsLabel}</div>
-          {coops.length > 0 ? (
+        {/* Solo se muestra con alianzas reales cargadas en company.alliedCoops. */}
+        {coops.length > 0 && (
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+            <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">{t.coopsLabel}</div>
             <ul className="space-y-2">
               {coops.map((c) => (
                 <li key={c.name} className="text-sm text-slate-700">
@@ -26,12 +27,8 @@ export const Certifications: React.FC<{ locale: Locale }> = ({ locale }) => {
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="text-sm text-slate-400 italic">{t.coopsPending}</p>
-          )}
-        </div>
-
-        <p className="text-xs text-slate-400 italic mt-4 text-center">{t.roadmap}</p>
+          </div>
+        )}
       </div>
     </section>
   );

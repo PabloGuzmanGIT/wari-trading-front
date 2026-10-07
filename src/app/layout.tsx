@@ -51,7 +51,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${outfit.variable} ${inter.variable} h-full antialiased`}>
+    // suppressHydrationWarning: HtmlLang cambia `lang` a "en" en /en/* antes de
+    // hidratar; sin esto React avisa del desajuste. Solo aplica a los atributos
+    // de <html>, no a sus hijos.
+    <html lang="es" suppressHydrationWarning className={`${outfit.variable} ${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#fbfbfa] text-[#14181a]">
         <AuthProvider>
           <PwaRegister />

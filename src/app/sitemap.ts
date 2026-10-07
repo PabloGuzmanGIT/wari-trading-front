@@ -2,7 +2,10 @@ import type { MetadataRoute } from 'next';
 import { API_INTERNAL_URL, SITE_URL } from '@/lib/config';
 
 const LOCALES = ['es', 'en'] as const;
-const STATIC_ROUTES = ['', '/blog', '/traceability'] as const;
+const STATIC_ROUTES = [
+  '', '/products/coffee', '/products/cocoa', '/products/derivatives',
+  '/maquila', '/private-label', '/traceability', '/origin', '/about', '/quote', '/blog',
+] as const;
 
 interface BlogPostSummary {
   id: number;
@@ -25,18 +28,23 @@ async function getBlogPosts(locale: string): Promise<BlogPostSummary[]> {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
 
+  // Cada idioma va como <loc> propio con sus alternates (Google pide que cada
+  // URL del grupo hreflang esté en el sitemap, no solo como alternate).
   for (const route of STATIC_ROUTES) {
-    entries.push({
-      url: `${SITE_URL}/es${route}`,
-      changeFrequency: route === '' ? 'weekly' : route === '/blog' ? 'daily' : 'monthly',
-      priority: route === '' ? 1 : 0.7,
-      alternates: {
-        languages: {
-          es: `${SITE_URL}/es${route}`,
-          en: `${SITE_URL}/en${route}`,
+    for (const locale of LOCALES) {
+      entries.push({
+        url: `${SITE_URL}/${locale}${route}`,
+        changeFrequency: route === '' ? 'weekly' : route === '/blog' ? 'daily' : 'monthly',
+        priority: route === '' ? 1 : route === '/maquila' || route.startsWith('/products') ? 0.9 : 0.7,
+        alternates: {
+          languages: {
+            es: `${SITE_URL}/es${route}`,
+            en: `${SITE_URL}/en${route}`,
+            'x-default': `${SITE_URL}/es${route}`,
+          },
         },
-      },
-    });
+      });
+    }
   }
 
   for (const locale of LOCALES) {

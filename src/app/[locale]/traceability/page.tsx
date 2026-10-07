@@ -2,6 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { translations, type Locale } from '@/locales/translations';
 import { company } from '@/lib/company';
+import { quoteHref } from '@/locales/pages';
 import { SITE_URL } from '@/lib/config';
 import { FiArrowLeft, FiCheck, FiShield } from 'react-icons/fi';
 
@@ -19,14 +20,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'Información de origen por lote y documentación de debida diligencia EUDR para compradores de café y cacao del VRAEM.'
     : 'Lot-level origin information and EUDR due-diligence documentation for buyers of VRAEM coffee and cocoa.';
   const url = `${SITE_URL}/${isEs ? 'es' : 'en'}/traceability`;
+  // Sin esto, al definir `openGraph` propio esta página pierde la imagen
+  // heredada de [locale]/opengraph-image.tsx y comparte sin miniatura.
+  const locale = isEs ? 'es' : 'en';
+  const images = [{ url: `${SITE_URL}/${locale}/opengraph-image`, width: 1200, height: 630, alt: company.name }];
   return {
     title,
     description,
     alternates: {
       canonical: url,
-      languages: { es: `${SITE_URL}/es/traceability`, en: `${SITE_URL}/en/traceability` },
+      languages: { es: `${SITE_URL}/es/traceability`, en: `${SITE_URL}/en/traceability`, 'x-default': `${SITE_URL}/es/traceability` },
     },
-    openGraph: { title, description, url, type: 'website' },
+    openGraph: { title, description, url, type: 'website', images },
+    twitter: { card: 'summary_large_image', title, description, images },
   };
 }
 
@@ -62,9 +68,14 @@ export default async function TraceabilityPage({ params }: Props) {
 
         <p className="text-xs text-slate-400 italic mb-10">{t.disclaimer}</p>
 
-        <Link href={`/${locale}#contact`} className="btn-primary no-underline">
-          {isEs ? 'Solicitar expediente de origen' : 'Request origin file'}
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href={quoteHref(locale, 'eudr')} className="btn-primary no-underline justify-center">
+            {isEs ? 'Pedir diagnóstico gratuito (cooperativas)' : 'Request a free assessment (cooperatives)'}
+          </Link>
+          <Link href={quoteHref(locale, 'grain')} className="btn-secondary no-underline justify-center">
+            {isEs ? 'Comprar lotes con expediente EUDR' : 'Buy lots with an EUDR file'}
+          </Link>
+        </div>
       </div>
     </div>
   );

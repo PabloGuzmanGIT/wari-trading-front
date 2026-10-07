@@ -43,6 +43,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? 'Precios del café y cacao en el VRAEM, calendario de cosecha, EUDR y cómo compramos en origen.'
     : 'VRAEM coffee and cocoa prices, harvest calendar, EUDR, and how we buy at origin.';
   const url = `${SITE_URL}/${locale}/blog`;
+  // Sin esto, al definir `openGraph` propio esta página pierde la imagen
+  // heredada de [locale]/opengraph-image.tsx y comparte sin miniatura.
+  const images = [{ url: `${SITE_URL}/${locale}/opengraph-image`, width: 1200, height: 630, alt: company.name }];
 
   return {
     title,
@@ -55,8 +58,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         'x-default': `${SITE_URL}/es/blog`,
       },
     },
-    openGraph: { title, description, url, type: 'website' },
-    twitter: { card: 'summary_large_image', title, description },
+    openGraph: { title, description, url, type: 'website', images },
+    twitter: { card: 'summary_large_image', title, description, images },
   };
 }
 

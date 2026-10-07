@@ -12,13 +12,14 @@
  * PENDIENTE de confirmar con el cliente (marcado con  // TODO ):
  *   - Nombre de la marca propia (retail)
  *   - Perfiles reales para `sameAs` (LinkedIn, Google Business Profile, redes)
- *   - Años operando (yearsOperating), N.º de productores, distritos/puntos de acopio
+ *   - N.º de productores, localidades intermedias del corredor de acopio
  *   - Cooperativas aliadas certificadas (+ certificadora) — hoy vacío a propósito
- *   - Capacidad de planta (kg/día por proceso)
  * No inventar datos: si algo no está confirmado, dejarlo en null / '' y la UI
  * lo omite.
  * ─────────────────────────────────────────────────────────────────────────────
  */
+
+const FOUNDED_YEAR = 2010;
 
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://waritradingfoods.com';
@@ -31,18 +32,23 @@ export const company = {
   ruc: '20494965594',
   /** Marca propia de café y cacao. */
   ownBrand: '', // TODO: nombre de la marca propia (retail)
-  /** Año de constitución de la empresa (RYM S.A.C.). */
-  foundedYear: 2009,
-  /** Año aproximado desde el que la familia opera en café/cacao (narrativa). null = no se menciona. */
-  familyInTradeSince: 1960,
+  /** Año de constitución de la empresa (RYM S.A.C.), según ficha RUC. */
+  foundedYear: FOUNDED_YEAR,
+  /** Año desde el que la familia opera en café/cacao (de manera informal). null = no se menciona. */
+  familyInTradeSince: 1970,
   tagline: {
-    es: 'Acopio y comercialización de café pergamino y cacao del VRAEM',
-    en: 'Sourcing and trading of parchment coffee and cocoa from Peru’s VRAEM',
+    es: 'Café y cacao del VRAEM: acopio, maquila y producto terminado',
+    en: 'Coffee and cocoa from Peru’s VRAEM: sourcing, toll processing and finished product',
+  },
+  /** Meta description corta (≤160 caracteres) para el home; la larga va en JSON-LD y llms.txt. */
+  metaDescription: {
+    es: 'Café pergamino, café de exportación y cacao del VRAEM. Maquila con planta propia con habilitación sanitaria, desde 5 kg hasta 500 TM al año.',
+    en: 'Parchment, export-grade coffee and cocoa from Peru’s VRAEM. Toll processing in our sanitary-licensed plant, from 5 kg up to 500 MT a year.',
   },
   /** Descripción declarativa y factual (se usa en JSON-LD y llms.txt — clave para GEO). */
   description: {
-    es: 'Empresa familiar peruana (VRAEM, Ayacucho) dedicada al acopio y la comercialización de café pergamino en volumen y cacao (CCN-51 y corriente). La familia opera en café y cacao desde los años 60; la empresa se constituyó en 2009. Abastece hasta 500 TM al año a casas exportadoras en Perú y ofrece servicio de maquila a pequeña escala (tostado, pilado, molienda y derivados) y marca propia.',
-    en: 'Peruvian family business (VRAEM, Ayacucho) sourcing and trading bulk parchment coffee and cocoa (CCN-51 and common bean). The family has worked in coffee and cocoa since the 1960s; the company was incorporated in 2009. Supplies up to 500 MT per year to Peruvian export houses and offers small-scale toll processing (roasting, hulling, milling, derivatives) plus its own brand.',
+    es: 'Empresa familiar peruana (VRAEM, Ayacucho) dedicada al acopio y la comercialización de café pergamino, café de exportación y cacao (CCN-51 y corriente), y al procesamiento de café y cacao por encargo. La familia opera en café y cacao desde 1970; la empresa se constituyó en 2010. Abastece hasta 500 TM al año desde una red de 10 puntos de acopio entre Puerto Ene y Villa Virgen. Cuenta con planta propia con habilitación sanitaria (tostado de café y cacao, descascarillado, nibs, licor, pasta y chocolate) y trabaja con plantas aliadas para pilado, polvo de cacao, empaque y pedidos de volumen.',
+    en: 'Peruvian family business (VRAEM, Ayacucho) sourcing and trading parchment coffee, export-grade coffee and cocoa (CCN-51 and common bean), and toll processing coffee and cocoa. The family has worked in coffee and cocoa since 1970; the company was incorporated in 2010. Supplies up to 500 MT per year through a network of 10 buying points between Puerto Ene and Villa Virgen. Runs its own sanitary-licensed plant (coffee and cocoa roasting, winnowing, nibs, liquor, paste and chocolate) and works with partner plants for hulling, cocoa powder, packaging and volume orders.',
   },
   /**
    * Correos por audiencia:
@@ -82,19 +88,30 @@ export const company = {
   origin: {
     region: 'VRAEM',
     admin: 'Ayacucho, Perú',
-    districts: ['Sivia', 'Llochegua', 'Canayre', 'Pichari', 'Kimbiri', 'San Francisco'], // TODO: ajustar a los reales
+    /** Corredor de la red de acopio (extremos confirmados por el cliente). */
+    corridor: { from: 'Puerto Ene', to: 'Villa Virgen' },
+    /**
+     * Localidades del corredor, de norte (Puerto Ene) a la parte alta (Villa Virgen).
+     * Confirmadas por el cliente; el orden de la parte alta es aproximado.
+     */
+    districts: [
+      'Puerto Ene', 'Canayre', 'Llochegua', 'Sivia', 'Pichari', 'Kimbiri', 'San Francisco',
+      'Santa Rosa', 'Palmapampa', 'San Antonio', 'Anchihuay', 'Arhuimayo', 'Villa Virgen',
+    ],
   },
 
   /** Cifras de autoridad. null = no se muestra la tarjeta. */
   stats: {
-    yearsOperating: null as number | null, // TODO: años operando (¿13?)
+    /** Años de la empresa constituida (se calcula desde foundedYear). */
+    yearsOperating: (new Date().getFullYear() - FOUNDED_YEAR) as number | null,
     /** Capacidad de abastecimiento anual, TM, café + cacao combinados. */
     tonsPerYear: 500,
     /** Desglose de la capacidad anual por producto (TM). */
     coffeeTonsPerYear: 150,
     cocoaTonsPerYear: 350,
     producers: null as number | null, // TODO: N.º de productores proveedores
-    collectionPoints: null as number | null, // TODO: N.º de puntos de acopio
+    /** Puntos de acopio (intermediarios y productores) entre Puerto Ene y Villa Virgen. */
+    collectionPoints: 10 as number | null,
   },
 
   /**
@@ -104,11 +121,27 @@ export const company = {
    */
   alliedCoops: [] as { name: string; certifier?: string; certs?: string[] }[],
 
-  /** Capacidad de la planta de maquila (kg/día). null = no se muestra el número. */
+  /**
+   * Planta propia (confirmado oct-2026). Capacidades por lote (kg).
+   * Lo que no está aquí (pilado, polvo de cacao, temperado/moldeado, empaque)
+   * se hace con plantas aliadas: no presentarlo como proceso propio.
+   */
   plant: {
-    roastingKgDay: null as number | null, // TODO
-    hullingKgDay: null as number | null, // TODO
-    millingKgDay: null as number | null, // TODO
+    sanitaryPermit: true,
+    coffeeRoasterKgBatch: 5,
+    cocoaRoasterKgBatch: 50,
+    winnowerKgBatch: 25,
+    refinerKgBatch: 25,
+    cocoaLineKgDay: 50,
+  },
+
+  /** Plantas aliadas con habilitación sanitaria (sin nombres públicos). */
+  partnerPlants: {
+    sanitaryPermit: true,
+    services: {
+      es: ['Pilado / trilla de café', 'Polvo y manteca de cacao', 'Temperado y moldeado de chocolate', 'Empaque y etiquetado', 'Pedidos de volumen'],
+      en: ['Coffee hulling', 'Cocoa powder and butter', 'Chocolate tempering and moulding', 'Packaging and labelling', 'Volume orders'],
+    },
   },
 } as const;
 

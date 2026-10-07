@@ -78,10 +78,14 @@
   :root { --tabbar-h: 0px; }
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+/* El reset va en la capa base: si queda sin capa, le gana a las utilidades
+   de Tailwind v4 (mb-*, pt-*, etc.) y estas dejan de aplicarse. */
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 html {

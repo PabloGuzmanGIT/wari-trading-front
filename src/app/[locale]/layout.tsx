@@ -6,7 +6,7 @@ import { BottomTabBar } from "@/components/BottomTabBar";
 import { WhatsappButton } from "@/components/WhatsappButton";
 import { HtmlLang } from "@/components/HtmlLang";
 import { SITE_URL, company, sameAs } from "@/lib/company";
-import { translations, type Locale } from "@/locales/translations";
+import type { Locale } from "@/locales/translations";
 
 // Prerenderiza /es y /en en build (no hay cookies()/headers() en el árbol).
 // Las rutas hijas que consultan la API (blog) siguen siendo dinámicas/ISR.
@@ -18,13 +18,15 @@ const KEYWORDS = {
   es: [
     "café pergamino Perú", "comprar café pergamino VRAEM", "acopio de café VRAEM",
     "cacao CCN-51 Perú", "cacao corriente VRAEM", "proveedor de cacao Perú",
-    "maquila de café Perú", "servicio de tostado por encargo", "pilado de café pergamino",
-    "café y cacao Ayacucho", "exportación café verde Perú",
+    "maquila de café Perú", "maquila de cacao Perú", "servicio de tostado por encargo",
+    "licor de cacao por encargo", "chocolate marca blanca Perú", "marca privada café",
+    "café y cacao Ayacucho", "exportación café verde Perú", "trazabilidad EUDR cooperativas",
   ],
   en: [
     "Peru parchment coffee", "buy green coffee VRAEM", "Peruvian coffee supplier",
     "CCN-51 cocoa Peru", "bulk cocoa Peru supplier", "cocoa beans Peru FOB Callao",
-    "toll roasting Peru", "small batch coffee processing Peru", "VRAEM coffee and cocoa",
+    "toll roasting Peru", "cocoa toll processing Peru", "private label chocolate Peru",
+    "cocoa liquor supplier Peru", "VRAEM coffee and cocoa", "EUDR traceability Peru",
   ],
 };
 
@@ -33,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const isEs = raw !== "en";
   const locale: Locale = isEs ? "es" : "en";
   const title = `${company.name} | ${company.tagline[locale]}`;
-  const description = company.description[locale];
+  const description = company.metaDescription[locale];
   const url = `${SITE_URL}/${locale}`;
 
   return {
@@ -120,7 +122,7 @@ export default async function LocaleLayout({
     areaServed: ["PE", "Worldwide"],
     knowsAbout: [
       "parchment coffee", "green coffee sourcing", "CCN-51 cocoa", "cocoa trading",
-      "coffee toll processing", "EUDR compliance", "VRAEM", "Peru agricultural exports",
+      "coffee toll processing", "cocoa toll processing", "cocoa liquor", "private label chocolate", "EUDR compliance", "VRAEM", "Peru agricultural exports",
     ],
     ...(sameAs.length ? { sameAs } : {}),
   };
@@ -166,24 +168,22 @@ export default async function LocaleLayout({
 
   const service = {
     "@type": "Service",
-    name: locale === "es" ? "Maquila de café y cacao a pequeña escala" : "Small-scale coffee and cocoa toll processing",
-    serviceType: locale === "es" ? "Tostado, pilado, molienda y empaque por encargo" : "Toll roasting, hulling, milling and packaging",
+    "@id": `${SITE_URL}/#toll-processing`,
+    name: locale === "es" ? "Maquila de café y cacao" : "Coffee and cocoa toll processing",
+    serviceType:
+      locale === "es"
+        ? "Tostado de café y cacao, nibs, licor, pasta y chocolate por encargo; pilado, polvo y empaque con plantas aliadas"
+        : "Toll roasting of coffee and cocoa, nibs, liquor, paste and chocolate; hulling, powder and packaging via partner plants",
     provider: { "@id": `${SITE_URL}/#organization` },
     areaServed: "PE",
-    description: company.description[locale],
+    url: `${SITE_URL}/${locale}/maquila`,
+    description:
+      locale === "es"
+        ? `Planta propia con habilitación sanitaria en Ayacucho. Tostado de café desde ${company.plant.coffeeRoasterKgBatch} kg; tostado de cacao (${company.plant.cocoaRoasterKgBatch} kg/lote), nibs, licor, pasta y chocolate desde ${company.plant.refinerKgBatch} kg. Plantas aliadas para pilado, polvo de cacao, empaque y volumen.`
+        : `Own sanitary-licensed plant in Ayacucho. Coffee roasting from ${company.plant.coffeeRoasterKgBatch} kg; cocoa roasting (${company.plant.cocoaRoasterKgBatch} kg/batch), nibs, liquor, paste and chocolate from ${company.plant.refinerKgBatch} kg. Partner plants for hulling, cocoa powder, packaging and volume.`,
   };
 
-  const faqPage = {
-    "@type": "FAQPage",
-    "@id": `${SITE_URL}/${locale}/#faq`,
-    mainEntity: translations[locale].faq.items.map((it) => ({
-      "@type": "Question",
-      name: it.q,
-      acceptedAnswer: { "@type": "Answer", text: it.a },
-    })),
-  };
-
-  const jsonLd = { "@context": "https://schema.org", "@graph": [org, website, ...products, service, faqPage] };
+  const jsonLd = { "@context": "https://schema.org", "@graph": [org, website, ...products, service] };
 
   return (
     <>

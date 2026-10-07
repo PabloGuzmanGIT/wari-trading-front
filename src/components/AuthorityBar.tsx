@@ -1,57 +1,37 @@
 import React from 'react';
-import { translations, type Locale } from '@/locales/translations';
+import type { Locale } from '@/locales/translations';
+import { pages } from '@/locales/pages';
 import { company } from '@/lib/company';
-import { FiCheckCircle } from 'react-icons/fi';
+import { SanitarySeal } from '@/components/Section';
 
+/** Cifras verificables. Un dato en null en company.ts no se muestra. */
 export const AuthorityBar: React.FC<{ locale: Locale }> = ({ locale }) => {
-  const t = translations[locale].authority;
-  const mt = locale === 'es' ? ' TM' : ' MT';
+  const t = pages[locale].home.stats;
+  const fmt = (n: number) => n.toLocaleString(locale === 'es' ? 'es-PE' : 'en-US');
 
-  const numeric = [
-    { value: company.stats.yearsOperating, label: t.years },
-    { value: company.stats.tonsPerYear, label: t.tons, suffix: mt },
-    { value: company.stats.collectionPoints, label: t.points },
-    { value: company.stats.producers, label: t.producers },
-  ].filter((s) => s.value != null) as { value: number; label: string; suffix?: string }[];
-
-  const qualitative = [
-    ...(company.familyInTradeSince ? [t.family] : []),
-    company.origin.admin,
-    t.plant,
-    t.bilingual,
-  ];
+  const stats = [
+    company.familyInTradeSince ? { v: String(company.familyInTradeSince), pre: t.since, l: t.family } : null,
+    company.foundedYear ? { v: String(company.foundedYear), pre: t.since, l: t.founded } : null,
+    company.stats.tonsPerYear ? { v: fmt(company.stats.tonsPerYear), l: t.tons } : null,
+    company.stats.collectionPoints ? { v: fmt(company.stats.collectionPoints), l: t.points } : null,
+  ].filter(Boolean) as { v: string; pre?: string; l: string }[];
 
   return (
-    <section className="bg-white border-y border-slate-100">
-      <div className="container py-8">
-        {numeric.length >= 3 ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {numeric.map((s) => (
-              <div key={s.label}>
-                <div className="text-3xl font-extrabold text-slate-900 tracking-tight">
-                  {s.value.toLocaleString(locale === 'es' ? 'es-PE' : 'en-US')}{s.suffix ?? ''}
-                </div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mt-1">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 text-sm">
-            {numeric.map((s) => (
-              <span key={s.label} className="flex items-baseline gap-1.5 font-medium text-slate-700">
-                <span className="text-lg font-extrabold text-slate-900">
-                  {s.value.toLocaleString(locale === 'es' ? 'es-PE' : 'en-US')}{s.suffix ?? ''}
-                </span>
-                <span className="text-slate-500">{s.label}</span>
-              </span>
-            ))}
-            {numeric.length > 0 && <span className="hidden sm:block w-px h-5 bg-slate-200" />}
-            {qualitative.map((q) => (
-              <span key={q} className="flex items-center gap-2 text-slate-600 font-medium">
-                <FiCheckCircle className="text-emerald-500 flex-shrink-0" />
-                {q}
-              </span>
-            ))}
+    <section className="bg-white border-b border-slate-200">
+      <div className="container py-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-6">
+          {stats.map((s) => (
+            <div key={s.l} className="text-center lg:text-left lg:border-l lg:border-slate-200 lg:pl-6 first:border-0 first:pl-0">
+              {/* El antetítulo reserva su línea aunque esté vacío, para alinear las cifras */}
+              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 h-4">{s.pre}</div>
+              <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-headings">{s.v}</div>
+              <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">{s.l}</div>
+            </div>
+          ))}
+        </div>
+        {company.plant.sanitaryPermit && (
+          <div className="mt-8 flex justify-center lg:justify-start">
+            <SanitarySeal label={t.plant} />
           </div>
         )}
       </div>

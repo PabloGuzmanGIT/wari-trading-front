@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { translations } from '@/locales/translations';
+import { routes } from '@/locales/pages';
 import { company, sameAs, emailFor } from '@/lib/company';
 import { FiPhone, FiMapPin, FiFileText, FiMail } from 'react-icons/fi';
 
@@ -11,6 +12,12 @@ export const Footer: React.FC = () => {
   const params = useParams();
   const locale = (params?.locale as 'es' | 'en') || 'es';
   const t = translations[locale].footer;
+  const nav = translations[locale].nav;
+  const siteLinks = [
+    [nav.coffee, routes.coffee], [nav.cocoa, routes.cocoa], [nav.derivatives, routes.derivatives],
+    [nav.maquila, routes.maquila], [nav.privateLabel, routes.privateLabel], [nav.traceability, routes.traceability],
+    [nav.origin, routes.origin], [nav.market, routes.market], [nav.about, routes.about], [nav.contact, routes.quote],
+  ] as const;
 
   const addressParts = [
     company.address.street,
@@ -22,7 +29,7 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 py-12 safe-x mt-auto relative z-10">
-      <div className="max-w-7xl mx-auto grid gap-8 md:grid-cols-3 text-sm">
+      <div className="max-w-7xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-4 text-sm">
 
         <div className="space-y-2">
           <div className="font-headings font-extrabold text-white text-lg tracking-tight">
@@ -30,6 +37,17 @@ export const Footer: React.FC = () => {
           </div>
           <p className="text-xs text-slate-500 max-w-xs">{t.tagline}</p>
           <p className="text-xs text-slate-600 pt-2">© {new Date().getFullYear()} {company.legalName}. {t.rights}</p>
+        </div>
+
+        <div className="space-y-2">
+          <div className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">{t.siteLabel}</div>
+          <ul className="grid grid-cols-2 lg:grid-cols-1 gap-x-4 gap-y-1.5">
+            {siteLinks.map(([label, path]) => (
+              <li key={path}>
+                <Link href={`/${locale}${path}`} className="text-slate-400 hover:text-white no-underline">{label}</Link>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="space-y-2">

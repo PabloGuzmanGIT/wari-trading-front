@@ -4,7 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useParams } from 'next/navigation';
 import { translations } from '@/locales/translations';
-import { FiHome, FiMapPin, FiPackage, FiShield, FiMail } from 'react-icons/fi';
+import { routes } from '@/locales/pages';
+import { FiHome, FiPackage, FiTool, FiShield, FiMail } from 'react-icons/fi';
 
 export const BottomTabBar: React.FC = () => {
   const pathname = usePathname() || '';
@@ -29,11 +30,11 @@ export const BottomTabBar: React.FC = () => {
   if (!mounted) return null;
 
   const items = [
-    { label: locale === 'es' ? 'Inicio' : 'Home', href: `/${locale}`, icon: FiHome, exact: true },
-    { label: t.sourcing, href: `/${locale}#sourcing`, icon: FiMapPin, exact: false },
-    { label: t.maquila, href: `/${locale}#maquila`, icon: FiPackage, exact: false },
-    { label: locale === 'es' ? 'EUDR' : 'EUDR', href: `/${locale}/traceability`, icon: FiShield, exact: false },
-    { label: locale === 'es' ? 'Cotizar' : 'Quote', href: `/${locale}#contact`, icon: FiMail, exact: false },
+    { label: t.home, href: `/${locale}`, icon: FiHome, exact: true },
+    { label: t.products, href: `/${locale}#products`, icon: FiPackage, exact: false },
+    { label: t.maquila, href: `/${locale}${routes.maquila}`, icon: FiTool, exact: false },
+    { label: 'EUDR', href: `/${locale}${routes.traceability}`, icon: FiShield, exact: false },
+    { label: t.contact, href: `/${locale}${routes.quote}`, icon: FiMail, exact: false },
   ];
 
   const isActive = (href: string, exact: boolean) => {
