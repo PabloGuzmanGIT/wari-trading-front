@@ -1,20 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { PwaRegister } from "@/components/PwaRegister";
 import { SITE_URL, company } from "@/lib/company";
 
-const outfit = Outfit({
+// Fuentes alojadas en el repo: con next/font/google el build dependía de la
+// descarga desde Google y fallaba de forma intermitente en Railway.
+const outfit = localFont({
+  src: "./fonts/outfit-latin-wght-normal.woff2",
   variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+  weight: "100 900",
+  display: "swap",
 });
 
-const inter = Inter({
+const inter = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: "100 900",
+  display: "swap",
 });
 
 // Verificación de Google Search Console vía token (opción alternativa al TXT DNS).
