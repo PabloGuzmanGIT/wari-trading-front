@@ -20,6 +20,7 @@ const EMPTY = {
   name: '', email: '', phone: '', company: '', country: '',
   product: '', volume: '', when: '', incoterm: '',
   ownGrain: '', frequency: '', members: '', region: '', message: '',
+  website: '', // trampa antispam: oculto para personas, los bots lo llenan
 };
 
 /**
@@ -78,6 +79,7 @@ export const ContactForm: React.FC<{
           product_interest: form.product ? `${t.needs[need]} · ${form.product}` : t.needs[need],
           volume_tons: Number.isFinite(volume) ? (volumeInKg ? volume / 1000 : volume) : null,
           message: form.message ? `${header}\n\n${form.message}` : header,
+          website: form.website || null,
         }),
       });
       if (res.ok) {
@@ -118,6 +120,9 @@ export const ContactForm: React.FC<{
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-5">
+          <div aria-hidden="true" style={{ position: 'absolute', left: '-9999px', height: 0, overflow: 'hidden' }}>
+            <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.website} onChange={(e) => set('website', e.target.value)} />
+          </div>
           <fieldset>
             <legend className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">{t.needLabel}</legend>
             <div className="grid grid-cols-2 gap-2.5">
