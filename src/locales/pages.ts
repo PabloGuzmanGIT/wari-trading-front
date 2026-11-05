@@ -254,6 +254,23 @@ const es = {
 
   about: {
     eyebrow: "Nosotros",
+    heroEyebrow: "Sobre Wari",
+    titleLead: "Tres generaciones en",
+    titleAccent: "café y cacao del VRAEM",
+    highlights: [
+      { t: `${s.collectionPoints} puntos`, d: "de acopio" },
+      { t: "Café y cacao", d: "de origen" },
+      { t: "VRAEM", d: "Ayacucho, Perú" },
+      { t: "Mercados", d: "nacionales e internacionales" },
+      { t: "Planta propia", d: "con habilitación sanitaria" },
+    ],
+    intro: `Empresa familiar constituida en ${company.foundedYear}. La familia compra café y cacao en el VRAEM desde ${company.familyInTradeSince}. Nos dedicamos al acopio y comercialización de café pergamino, café de exportación y cacao, a la maquila de café y cacao y a la marca privada.`,
+    introFacts: [
+      { t: "Empresa familiar", d: `desde ${company.familyInTradeSince}` },
+      { t: `Hasta ${s.tonsPerYear} TM`, d: "al año" },
+      { t: "Plantas aliadas", d: "pilado, polvo, empaque y volumen" },
+    ],
+    imageNote: "Imagen ilustrativa",
     title: "Tres generaciones en café y cacao del VRAEM",
     subtitle: `Somos una empresa familiar de Ayacucho. Lo que empezó como acopio familiar en ${company.familyInTradeSince} es hoy una operación con red de acopio, planta propia y alianzas industriales.`,
     timelineTitle: "Nuestra historia",
@@ -515,6 +532,23 @@ const en: typeof es = {
 
   about: {
     eyebrow: "About us",
+    heroEyebrow: "About Wari",
+    titleLead: "Three generations in",
+    titleAccent: "VRAEM coffee and cocoa",
+    highlights: [
+      { t: `${s.collectionPoints} points`, d: "buying network" },
+      { t: "Coffee and cocoa", d: "from origin" },
+      { t: "VRAEM", d: "Ayacucho, Peru" },
+      { t: "Markets", d: "domestic and international" },
+      { t: "Own plant", d: "sanitary-licensed" },
+    ],
+    intro: `Family business incorporated in ${company.foundedYear}. The family has bought coffee and cocoa in the VRAEM since ${company.familyInTradeSince}. We source and trade parchment coffee, export-grade coffee and cocoa, and offer coffee and cocoa toll processing and private label.`,
+    introFacts: [
+      { t: "Family business", d: `since ${company.familyInTradeSince}` },
+      { t: `Up to ${s.tonsPerYear} MT`, d: "a year" },
+      { t: "Partner plants", d: "hulling, powder, packaging and volume" },
+    ],
+    imageNote: "Illustrative image",
     title: "Three generations in VRAEM coffee and cocoa",
     subtitle: `We are a family business from Ayacucho. What began as family buying in ${company.familyInTradeSince} is now an operation with a sourcing network, its own plant and industrial partners.`,
     timelineTitle: "Our story",

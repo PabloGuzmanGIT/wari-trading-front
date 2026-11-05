@@ -5,18 +5,16 @@ export const CompanyFacts: React.FC<{ locale: Locale }> = ({ locale }) => {
   const t = translations[locale].facts;
 
   return (
-    <section id="empresa" className="section-padding bg-slate-50 scroll-mt-24">
-      <div className="container max-w-3xl">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-6 text-center">{t.title}</h2>
-        <dl className="rounded-3xl border border-slate-100 bg-white divide-y divide-slate-100 overflow-hidden">
-          {t.rows.map(([k, v]) => (
-            <div key={k} className="grid sm:grid-cols-3 gap-2 px-6 py-4 text-sm">
-              <dt className="font-semibold text-slate-500">{k}</dt>
-              <dd className="sm:col-span-2 text-slate-800">{v}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+    <section id="empresa" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8">
+      <h2 className="font-body! text-2xl font-bold tracking-tight text-wari-navy sm:text-[1.75rem]">{t.title}</h2>
+      <dl className="mt-3 divide-y divide-slate-200">
+        {t.rows.map(([k, v]) => (
+          <div key={k} className="grid gap-1 py-3 text-sm sm:grid-cols-3 sm:gap-3">
+            <dt className="font-bold text-wari-navy">{k}</dt>
+            <dd className="text-slate-700 sm:col-span-2">{v}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 };

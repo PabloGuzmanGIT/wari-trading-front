@@ -102,6 +102,26 @@ export const media = {
     temporary: true,
     alt: { es: 'Mazorca de cacao en el árbol', en: 'Cocoa pod on the tree' },
   },
+  ABOUT_HERO: {
+    src: '/images/about-hero-temp.jpg',
+    width: 1800,
+    height: 470,
+    temporary: true,
+    alt: {
+      es: 'Mazorca de cacao frente a un valle de selva, imagen ilustrativa',
+      en: 'Cocoa pod in front of a jungle valley, illustrative image',
+    },
+  },
+  ABOUT_INTRO: {
+    src: '/images/about-intro-temp.jpg',
+    width: 1036,
+    height: 564,
+    temporary: true,
+    alt: {
+      es: 'Imagen ilustrativa de la cosecha de café: una persona recoge cerezas maduras',
+      en: 'Illustrative image of the coffee harvest: a person picking ripe cherries',
+    },
+  },
   CONTACT_PANEL: {
     src: '/images/contact-panel-temp.jpg',
     width: 584,
