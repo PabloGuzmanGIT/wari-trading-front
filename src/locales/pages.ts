@@ -13,24 +13,24 @@ const p = company.plant;
 const s = company.stats;
 const { from, to } = company.origin.corridor;
 
-export type NeedKey = "grain" | "processing" | "brand" | "eudr";
+export type NeedKey = "grain" | "processing" | "brand" | "sell" | "eudr";
+export type HeroHighlightKey = "origin" | "processing" | "quality" | "b2b";
 
 const es = {
   home: {
     hero: {
-      badge: `${company.name} · VRAEM, Ayacucho`,
-      title: "Café y cacao del VRAEM: del grano a tu producto terminado",
-      subtitle: `Red de acopio en origen, planta con habilitación sanitaria y plantas aliadas. Desde ${p.coffeeRoasterKgBatch} kg hasta ${s.tonsPerYear} TM al año.`,
-      doorsTitle: "¿Qué necesitas?",
-      doors: [
-        { key: "grain", t: "Comprar grano", d: "Café pergamino, café de exportación y cacao en volumen." },
-        { key: "processing", t: "Procesar mi producto", d: "Maquila de café y cacao desde 5 kg." },
-        { key: "brand", t: "Crear mi marca", d: "Café o chocolate con tu etiqueta, listo para vender." },
-        { key: "eudr", t: "Trazabilidad EUDR", d: "Geolocalización y expediente para cooperativas." },
-      ] as { key: NeedKey; t: string; d: string }[],
-      imageAlt: "Valle del Río Apurímac, VRAEM",
-      imageTag: "Origen",
-      imageCaption: "Valle de los ríos Apurímac, Ene y Mantaro",
+      eyebrow: "Café y cacao del Perú",
+      titleLead: "Abastecimiento y procesamiento de",
+      titleAccent: "café y cacao",
+      subtitle: "Origen VRAEM, calidad consistente y capacidad de atención para mercados nacionales e internacionales.",
+      primaryCta: "Solicitar cotización",
+      secondaryCta: "Conocer nuestros productos",
+      highlights: [
+        { key: "origin", t: "Origen Peruano", d: "VRAEM - Ayacucho" },
+        { key: "processing", t: "Procesamiento propio" },
+        { key: "quality", t: "Calidad y trazabilidad" },
+        { key: "b2b", t: "Soluciones B2B", d: "Maquila y marca privada" },
+      ] as { key: HeroHighlightKey; t: string; d?: string }[],
     },
     stats: {
       family: "La familia en café y cacao",
@@ -53,14 +53,14 @@ const es = {
       ],
     },
     products: {
-      eyebrow: "Productos",
-      title: "Lo que te podemos entregar",
-      subtitle: "Grano en volumen y derivados listos para tu proceso o tu marca.",
+      eyebrow: "Nuestros productos",
+      title: "Café y cacao peruanos para la industria",
+      subtitle: "Seleccionados en origen y procesados con estándares que responden a las necesidades de la industria global.",
       items: [
-        { slug: "coffee", t: "Café pergamino y de exportación", d: "Comercial y de exportación. Lotes desde 1 TM." },
-        { slug: "cocoa", t: "Cacao en grano", d: "CCN-51 y corriente, fermentación verificada. Lotes desde 1 TM." },
-        { slug: "derivatives", t: "Derivados de cacao", d: "Nibs, licor, pasta y chocolate. Desde 25 kg." },
-        { slug: "derivatives", t: "Café tostado", d: "En grano o molido, perfil por lote. Desde 5 kg." },
+        { slug: "coffee", t: "Café", d: "Pergamino, verde y tostado" },
+        { slug: "cocoa", t: "Cacao", d: "CCN-51 y corriente, desde 1 TM" },
+        { slug: "derivatives", t: "Derivados de cacao", d: "Nibs, pasta y más" },
+        { slug: "derivatives", t: "Café tostado", d: "Perfiles y tostado a medida" },
       ],
       spec: "Ver ficha",
       sample: "Pedir muestra",
@@ -78,9 +78,10 @@ const es = {
       ],
     },
     origin: {
-      eyebrow: "Origen",
-      title: "Compramos donde nace el grano",
-      subtitle: `Una red de ${s.collectionPoints} puntos de acopio a lo largo del corredor ${from} – ${to}, en el corazón del VRAEM.`,
+      eyebrow: "Nuestro origen",
+      title: "VRAEM – Ayacucho, Perú",
+      subtitle: `Compramos en origen a través de una red de ${s.collectionPoints} puntos de acopio en el VRAEM, una de las zonas con mayor potencial agrícola del Perú, reconocida por la calidad de su café y cacao.`,
+      highlights: ["Alto valor agroecológico", `${s.collectionPoints} puntos de acopio`, "Trazabilidad por lote"],
       cta: "Conocer el origen",
     },
     eudr: {
@@ -223,7 +224,14 @@ const es = {
   },
 
   origin: {
-    eyebrow: "Origen",
+    eyebrow: "Nuestro origen",
+    titleLead: "VRAEM: el valle de donde sale nuestro",
+    titleAccent: "café y cacao",
+    heroSubtitle: "Compramos directamente a productores y acopiadores en la zona del VRAEM, articulando una cadena de suministro confiable.",
+    territoryEyebrow: "Nuestro territorio",
+    territoryText: `Operamos en el valle de los ríos Apurímac y Ene (VRAEM), con una red de ${s.collectionPoints} puntos de acopio que nos permite recibir café y cacao de diversas comunidades de la zona.`,
+    localitiesLabel: "Localidades del corredor",
+    legend: { main: "Puntos principales", point: `Punto de acopio (1 – ${s.collectionPoints})`, corridor: "Corredor de acopio", rivers: "Ríos (Apurímac y Ene)" },
     title: "VRAEM: el valle de donde sale nuestro café y cacao",
     subtitle: `Nuestra red de acopio recorre el corredor ${from} – ${to}, a lo largo de los ríos Apurímac y Ene. Compramos directo a productores e intermediarios de la zona.`,
     mapTitle: "Corredor de acopio",
@@ -231,10 +239,10 @@ const es = {
     pointsLabel: "puntos de acopio",
     howTitle: "Cómo compramos",
     how: [
-      { t: "Precio del día", d: "Recalculamos el precio de compra cada mañana con la cotización internacional y el tipo de cambio." },
-      { t: "Pago al contado", d: "Liquidación inmediata en el punto de acopio, con comprobante." },
-      { t: "Balanza certificada", d: "Peso neto verificado frente al productor." },
-      { t: "Relación de largo plazo", d: `La familia compra en el valle desde ${company.familyInTradeSince}. Conocemos a quién le compramos.` },
+      { t: "Precio del día", d: "Precio actualizado cada mañana según cotización internacional y tipo de cambio." },
+      { t: "Pago al contado", d: "Liquidación en el punto de acopio." },
+      { t: "Balanza certificada", d: "Peso neto verificado en cada operación." },
+      { t: "Relación de largo plazo", d: `Experiencia familiar en el valle desde ${company.familyInTradeSince}.` },
     ],
     calendarTitle: "Calendario de cosecha",
     calendar: [
@@ -260,7 +268,10 @@ const es = {
   },
 
   quote: {
-    eyebrow: "Cotizar",
+    eyebrow: "Contacto comercial",
+    displayLead: "Contacta con",
+    displayAccent: "Wari",
+    displaySubtitle: "Cuéntanos qué necesitas y nuestro equipo comercial se pondrá en contacto contigo en 24–72 horas.",
     title: "Solicitar cotización o muestra",
     subtitle: "Elige qué necesitas y te pedimos solo los datos que hacen falta. Respondemos en 24–72 h.",
   },
@@ -269,19 +280,18 @@ const es = {
 const en: typeof es = {
   home: {
     hero: {
-      badge: `${company.name} · VRAEM, Ayacucho`,
-      title: "Coffee and cocoa from Peru’s VRAEM: from bean to finished product",
-      subtitle: `A sourcing network at origin, a sanitary-licensed plant and partner plants. From ${p.coffeeRoasterKgBatch} kg up to ${s.tonsPerYear} MT a year.`,
-      doorsTitle: "What do you need?",
-      doors: [
-        { key: "grain", t: "Buy beans", d: "Parchment coffee, export-grade coffee and cocoa in volume." },
-        { key: "processing", t: "Process my product", d: "Coffee and cocoa toll processing from 5 kg." },
-        { key: "brand", t: "Build my brand", d: "Coffee or chocolate under your label, ready to sell." },
-        { key: "eudr", t: "EUDR traceability", d: "Geolocation and due-diligence files for cooperatives." },
+      eyebrow: "Coffee and cocoa from Peru",
+      titleLead: "Sourcing and processing of",
+      titleAccent: "coffee and cocoa",
+      subtitle: "VRAEM origin, consistent quality and the capacity to serve domestic and international markets.",
+      primaryCta: "Request a quote",
+      secondaryCta: "Explore our products",
+      highlights: [
+        { key: "origin", t: "Peruvian origin", d: "VRAEM - Ayacucho" },
+        { key: "processing", t: "In-house processing" },
+        { key: "quality", t: "Quality and traceability" },
+        { key: "b2b", t: "B2B solutions", d: "Toll processing and private label" },
       ],
-      imageAlt: "Apurímac River Valley, VRAEM",
-      imageTag: "Origin",
-      imageCaption: "Apurímac, Ene and Mantaro river valleys",
     },
     stats: {
       family: "Family in coffee and cocoa",
@@ -304,14 +314,14 @@ const en: typeof es = {
       ],
     },
     products: {
-      eyebrow: "Products",
-      title: "What we can deliver",
-      subtitle: "Beans in volume and derivatives ready for your process or your brand.",
+      eyebrow: "Our products",
+      title: "Peruvian coffee and cocoa for industry",
+      subtitle: "Selected at origin and processed to standards that meet the needs of the global industry.",
       items: [
-        { slug: "coffee", t: "Parchment and export coffee", d: "Commercial and export grade. Lots from 1 MT." },
-        { slug: "cocoa", t: "Cocoa beans", d: "CCN-51 and common bean, verified fermentation. Lots from 1 MT." },
-        { slug: "derivatives", t: "Cocoa derivatives", d: "Nibs, liquor, paste and chocolate. From 25 kg." },
-        { slug: "derivatives", t: "Roasted coffee", d: "Whole bean or ground, profiled per lot. From 5 kg." },
+        { slug: "coffee", t: "Coffee", d: "Parchment, green and roasted" },
+        { slug: "cocoa", t: "Cocoa", d: "CCN-51 and common bean, from 1 MT" },
+        { slug: "derivatives", t: "Cocoa derivatives", d: "Nibs, paste and more" },
+        { slug: "derivatives", t: "Roasted coffee", d: "Custom profiles and roasting" },
       ],
       spec: "View spec sheet",
       sample: "Request a sample",
@@ -329,9 +339,10 @@ const en: typeof es = {
       ],
     },
     origin: {
-      eyebrow: "Origin",
-      title: "We buy where the bean is grown",
-      subtitle: `A network of ${s.collectionPoints} buying points along the ${from} – ${to} corridor, in the heart of the VRAEM.`,
+      eyebrow: "Our origin",
+      title: "VRAEM – Ayacucho, Peru",
+      subtitle: `We buy at origin through a network of ${s.collectionPoints} buying points in the VRAEM, one of Peru’s areas with the greatest agricultural potential, known for the quality of its coffee and cocoa.`,
+      highlights: ["High agroecological value", `${s.collectionPoints} buying points`, "Lot-level traceability"],
       cta: "Explore the origin",
     },
     eudr: {
@@ -474,7 +485,14 @@ const en: typeof es = {
   },
 
   origin: {
-    eyebrow: "Origin",
+    eyebrow: "Our origin",
+    titleLead: "VRAEM: the valley our",
+    titleAccent: "coffee and cocoa come from",
+    heroSubtitle: "We buy directly from growers and local buyers in the VRAEM, building a reliable supply chain.",
+    territoryEyebrow: "Our territory",
+    territoryText: `We operate in the valley of the Apurímac and Ene rivers (VRAEM), with a network of ${s.collectionPoints} buying points that lets us receive coffee and cocoa from many local communities.`,
+    localitiesLabel: "Towns along the corridor",
+    legend: { main: "Main points", point: `Buying point (1 – ${s.collectionPoints})`, corridor: "Sourcing corridor", rivers: "Rivers (Apurímac and Ene)" },
     title: "VRAEM: the valley our coffee and cocoa come from",
     subtitle: `Our sourcing network runs along the ${from} – ${to} corridor, following the Apurímac and Ene rivers. We buy directly from local growers and intermediaries.`,
     mapTitle: "Sourcing corridor",
@@ -482,10 +500,10 @@ const en: typeof es = {
     pointsLabel: "buying points",
     howTitle: "How we buy",
     how: [
-      { t: "Daily price", d: "We recalculate our buying price every morning from the international quote and exchange rate." },
-      { t: "Cash payment", d: "Paid on the spot at the buying point, with a receipt." },
-      { t: "Certified scale", d: "Net weight verified in front of the grower." },
-      { t: "Long-term relationships", d: `The family has bought in the valley since ${company.familyInTradeSince}. We know who we buy from.` },
+      { t: "Daily price", d: "Price updated every morning from the international quote and exchange rate." },
+      { t: "Cash payment", d: "Settled at the buying point." },
+      { t: "Certified scale", d: "Net weight verified in every transaction." },
+      { t: "Long-term relationships", d: `Family experience in the valley since ${company.familyInTradeSince}.` },
     ],
     calendarTitle: "Harvest calendar",
     calendar: [
@@ -511,7 +529,10 @@ const en: typeof es = {
   },
 
   quote: {
-    eyebrow: "Quote",
+    eyebrow: "Commercial contact",
+    displayLead: "Contact",
+    displayAccent: "Wari",
+    displaySubtitle: "Tell us what you need and our sales team will get in touch within 24–72 hours.",
     title: "Request a quote or sample",
     subtitle: "Choose what you need and we only ask for the details that matter. We reply within 24–72 h.",
   },
@@ -532,14 +553,6 @@ export const routes = {
   about: "/about",
   quote: "/quote",
 } as const;
-
-/** Página de destino de cada "puerta" del home. */
-export const needRoute: Record<NeedKey, string> = {
-  grain: "#products",
-  processing: routes.maquila,
-  brand: routes.privateLabel,
-  eudr: routes.traceability,
-};
 
 export const quoteHref = (locale: Locale, need?: NeedKey) =>
   `/${locale}${routes.quote}${need ? `?need=${need}` : ""}`;

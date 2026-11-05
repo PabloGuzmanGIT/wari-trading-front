@@ -12,6 +12,15 @@
   --font-headings: var(--font-outfit), sans-serif;
   --font-body: var(--font-inter), sans-serif;
 
+  /* Rediseño B2B: colores tomados del render aprobado (Header + Hero) */
+  --color-wari-navy: #0b223c;
+  --color-wari-green: #559e32;
+  --color-wari-green-hover: #4a8a2b;
+  --color-wari-lime: #94cb3d;
+  --color-wari-cream: #f8f4ef;
+  --color-wari-forest: #0f382c;
+  --color-wari-deep: #12690f;
+
   /* Acento: verde pino */
   --color-emerald-50:  #eef2f0;
   --color-emerald-100: #dbe6e2;

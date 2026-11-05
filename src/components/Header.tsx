@@ -1,27 +1,43 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { translations } from '@/locales/translations';
 import { routes, quoteHref } from '@/locales/pages';
 import { company } from '@/lib/company';
-import { FiDownload, FiMenu, FiX, FiLock, FiChevronDown } from 'react-icons/fi';
-import { FaWhatsapp } from 'react-icons/fa';
+import { FiArrowRight, FiCheck, FiDownload, FiGlobe, FiMenu, FiX, FiChevronDown } from 'react-icons/fi';
 
-type NavItem = { label: string; href: string };
+type NavItem = { label: string; href: string; exact?: boolean };
 type NavGroup = { label: string; items: NavItem[] };
+type Lang = 'es' | 'en';
+
+const LANGS: { code: Lang; label: string }[] = [
+  { code: 'es', label: 'Español' },
+  { code: 'en', label: 'English' },
+];
+
+/** Marca «Cumbre» (la misma de icon.svg), sin el fondo. */
+const BrandMark: React.FC = () => (
+  <svg viewBox="-16 160 544 300" className="h-9 w-[65px] lg:h-10 lg:w-[72px] 2xl:h-12 2xl:w-[87px]" aria-hidden="true">
+    <path d="M-20 378 L84 200 L188 252 L256 168 L324 252 L428 200 L532 378 Z" fill="#fbfbfa" />
+    <path d="M-16 372 C70 350 120 360 182 342 C232 328 250 300 276 302 C316 306 340 356 400 368 C452 378 496 360 528 366 L528 452 C470 462 430 442 372 430 C320 419 288 452 250 452 C214 452 190 424 140 430 C84 437 30 456 -16 448 Z" fill="#559e32" />
+    <path d="M-8 400 C74 380 126 390 186 374 C234 361 252 336 276 338 C314 342 338 384 396 396 C448 406 492 390 520 396" fill="none" stroke="#94cb3d" strokeWidth="9" strokeLinecap="round" />
+  </svg>
+);
 
 export const Header: React.FC = () => {
   const params = useParams();
   const rawLocale = params?.locale as string;
-  const locale = (rawLocale === 'es' || rawLocale === 'en') ? rawLocale : 'es';
+  const locale: Lang = (rawLocale === 'es' || rawLocale === 'en') ? rawLocale : 'es';
   const t = translations[locale].nav;
 
   const pathname = usePathname() || '';
   const router = useRouter();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
 
@@ -35,6 +51,22 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
   }, []);
 
+  useEffect(() => {
+    if (!langOpen) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (!langRef.current?.contains(e.target as Node)) setLangOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLangOpen(false);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [langOpen]);
+
   const handleInstallClick = async () => {
     const promptEvent = deferredPrompt as (Event & { prompt: () => void; userChoice: Promise<{ outcome: string }> }) | null;
     if (!promptEvent) return;
@@ -46,7 +78,8 @@ export const Header: React.FC = () => {
     }
   };
 
-  const changeLocale = (newLocale: 'es' | 'en') => {
+  const changeLocale = (newLocale: Lang) => {
+    setLangOpen(false);
     if (newLocale === locale) return;
     const pathParts = pathname.split('/');
     pathParts[1] = newLocale;
@@ -56,6 +89,7 @@ export const Header: React.FC = () => {
   const L = (path: string) => `/${locale}${path}`;
 
   const nav: (NavItem | NavGroup)[] = [
+    { label: t.home, href: L(''), exact: true },
     {
       label: t.products,
       items: [
@@ -73,46 +107,50 @@ export const Header: React.FC = () => {
       ],
     },
     { label: t.origin, href: L(routes.origin) },
-    { label: t.market, href: L(routes.market) },
     { label: t.about, href: L(routes.about) },
+    { label: t.contactLink, href: L(routes.quote) },
   ];
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
-  const linkCls = (active: boolean) =>
-    `font-medium text-sm transition-colors no-underline ${active ? 'text-emerald-700' : 'text-slate-600 hover:text-emerald-600'}`;
+  // Fuera del menú de escritorio aprobado: sigue en el móvil, el Footer y el home.
+  const mobileOnly: NavItem[] = [{ label: t.market, href: L(routes.market) }];
 
-  const waHref = company.whatsapp ? `https://wa.me/${company.whatsapp}` : null;
+  const isActive = ({ href, exact }: NavItem) =>
+    pathname === href || (!exact && pathname.startsWith(`${href}/`));
+  const linkCls = (active: boolean) =>
+    `relative whitespace-nowrap py-2 text-sm xl:text-base 2xl:text-[1.2rem] font-medium no-underline transition-colors text-white hover:text-wari-lime ${
+      active ? "after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-wari-lime" : ''
+    }`;
+  const closeMenu = () => setMobileMenuOpen(false);
 
   return (
-    <header className="nav-blur w-full border-b border-slate-200/80">
-      <div className="max-w-7xl mx-auto safe-x h-16 flex items-center justify-between gap-4">
+    <header className="w-full border-b border-white/15 bg-wari-navy text-white">
+      <div className="mx-auto flex h-[68px] max-w-[1624px] items-center justify-between gap-4 safe-x lg:h-[clamp(76px,5.25vw,92px)]">
 
-        <Link href={`/${locale}`} className="flex items-center gap-2.5 cursor-pointer no-underline group flex-shrink-0">
-          <div className="w-9 h-9 rounded-lg bg-[#0f172a] flex items-center justify-center text-white font-extrabold text-base transition-transform duration-200 group-hover:-translate-y-0.5">
-            {company.name.slice(0, 1)}
-          </div>
-          <span className="font-headings font-extrabold text-base sm:text-lg tracking-tight text-slate-900">
-            {company.name}
+        <Link href={`/${locale}`} aria-label={company.name} className="flex flex-shrink-0 items-center gap-2 text-white no-underline">
+          <BrandMark />
+          <span className="flex flex-col leading-none">
+            <span className="text-2xl font-extrabold tracking-tight lg:text-[1.75rem] 2xl:text-[2.4rem]">WARI</span>
+            <span className="mt-0.5 text-[9.5px] font-medium tracking-[0.13em] lg:text-[11px] 2xl:text-[14px]">TRADING FOODS</span>
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-6" aria-label={locale === 'es' ? 'Principal' : 'Main'}>
+        <nav className="hidden items-center gap-3.5 lg:flex xl:gap-7 2xl:gap-12" aria-label={locale === 'es' ? 'Principal' : 'Main'}>
           {nav.map((item) =>
             'items' in item ? (
-              <div key={item.label} className="relative group">
+              <div key={item.label} className="group relative">
                 <button
                   type="button"
                   aria-haspopup="true"
-                  className={`${linkCls(item.items.some((i) => isActive(i.href)))} inline-flex items-center gap-1 cursor-pointer`}
+                  className={`${linkCls(item.items.some(isActive))} inline-flex cursor-pointer items-center gap-1.5`}
                 >
                   {item.label}
-                  <FiChevronDown size={14} className="transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+                  <FiChevronDown size={15} className="transition-transform group-focus-within:rotate-180 group-hover:rotate-180" />
                 </button>
                 {/* pt-3 deja un "puente" para que el hover no se corte al bajar el mouse */}
-                <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 invisible opacity-0 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100 transition-opacity">
-                  <div className="w-64 rounded-xl border border-slate-200 bg-white shadow-xl p-2">
+                <div className="invisible absolute left-1/2 top-full -translate-x-1/2 pt-3 opacity-0 transition-opacity group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                  <div className="w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
                     {item.items.map((sub) => (
-                      <Link key={sub.href} href={sub.href} className={`block rounded-lg px-3 py-2.5 hover:bg-emerald-50 ${linkCls(isActive(sub.href))}`}>
+                      <Link key={sub.href} href={sub.href} className={`block rounded-lg px-3 py-2.5 text-sm font-medium no-underline transition-colors ${isActive(sub) ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50'}`}>
                         {sub.label}
                       </Link>
                     ))}
@@ -120,80 +158,89 @@ export const Header: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <Link key={item.href} href={item.href} className={linkCls(isActive(item.href))}>
+              <Link key={item.href} href={item.href} className={linkCls(isActive(item))}>
                 {item.label}
               </Link>
             ),
           )}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="flex items-center bg-slate-100/80 rounded-full p-1 border border-slate-200/50">
-            <button onClick={() => changeLocale('es')} className={`px-2.5 py-1 text-xs font-bold rounded-full transition-all cursor-pointer ${locale === 'es' ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>ES</button>
-            <button onClick={() => changeLocale('en')} className={`px-2.5 py-1 text-xs font-bold rounded-full transition-all cursor-pointer ${locale === 'en' ? 'bg-white text-cyan-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>EN</button>
+        <div className="flex items-center gap-2 sm:gap-3 xl:gap-4">
+          <div ref={langRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setLangOpen((open) => !open)}
+              aria-haspopup="true"
+              aria-expanded={langOpen}
+              aria-label={locale === 'es' ? 'Cambiar idioma' : 'Change language'}
+              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-2 py-2 text-sm font-medium text-white transition-colors hover:bg-white/10 xl:px-3 2xl:text-base"
+            >
+              <FiGlobe size={20} />
+              {locale.toUpperCase()}
+              <FiChevronDown size={15} className={`transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {langOpen && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-40 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                {LANGS.map(({ code, label }) => (
+                  <button
+                    key={code}
+                    type="button"
+                    lang={code}
+                    onClick={() => changeLocale(code)}
+                    className={`flex w-full cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${code === locale ? 'bg-emerald-50 text-emerald-700' : 'text-slate-700 hover:bg-slate-50'}`}
+                  >
+                    {label}
+                    {code === locale && <FiCheck size={15} />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {isInstallable && (
-            <button onClick={handleInstallClick} className="hidden xl:inline-flex border border-slate-300 hover:border-slate-400 text-slate-600 font-medium text-xs px-3.5 py-2 rounded-full items-center gap-1.5 transition-colors cursor-pointer">
-              <FiDownload size={14} />
-              {t.installApp}
-            </button>
-          )}
-
-          {waHref && (
-            <a href={waHref} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp" className="hidden sm:inline-flex items-center justify-center w-9 h-9 rounded-full text-[#1da851] hover:bg-slate-100 transition-colors">
-              <FaWhatsapp size={18} />
-            </a>
-          )}
-
-          <Link href={quoteHref(locale)} className="hidden sm:inline-flex btn-primary !text-xs !py-2 !px-4 no-underline">
-            {t.contact}
+          <Link href={quoteHref(locale)} className="hidden items-center gap-2 whitespace-nowrap rounded-lg bg-wari-green px-4 py-2.5 text-[13px] font-semibold text-white no-underline transition-colors hover:bg-wari-green-hover sm:inline-flex lg:px-3 xl:px-5 xl:py-3 xl:text-[15px] 2xl:px-6 2xl:py-4 2xl:text-[1.1rem]">
+            {t.quoteCta}
+            <FiArrowRight size={17} />
           </Link>
 
-          <Link
-            href={`/${locale}/portal`}
-            title={t.portal}
-            aria-label={t.portal}
-            className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
-          >
-            <FiLock size={15} />
-          </Link>
-
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="lg:hidden p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer" aria-label="Menu" aria-expanded={mobileMenuOpen}>
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="cursor-pointer rounded-lg p-1.5 text-white transition-colors hover:bg-white/10 lg:hidden" aria-label="Menu" aria-expanded={mobileMenuOpen}>
             {mobileMenuOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
         </div>
       </div>
 
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 safe-x py-4 shadow-lg absolute w-full left-0 z-40 max-h-[calc(100vh-6.5rem)] overflow-y-auto">
+        <div className="absolute left-0 z-40 max-h-[calc(100vh-6.5rem)] w-full overflow-y-auto border-b border-white/15 bg-wari-navy py-4 shadow-lg safe-x lg:hidden">
           {nav.map((item) =>
             'items' in item ? (
               <div key={item.label} className="py-1">
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 pt-2 pb-1">{item.label}</div>
+                <div className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">{item.label}</div>
                 {item.items.map((sub) => (
-                  <Link key={sub.href} href={sub.href} onClick={() => setMobileMenuOpen(false)} className="block text-slate-700 font-medium py-2 px-3 hover:bg-emerald-50 rounded-lg no-underline">
+                  <Link key={sub.href} href={sub.href} onClick={closeMenu} className="block rounded-lg px-3 py-2 font-medium text-white no-underline hover:bg-white/10">
                     {sub.label}
                   </Link>
                 ))}
               </div>
             ) : (
-              <Link key={item.href} href={item.href} onClick={() => setMobileMenuOpen(false)} className="block text-slate-700 font-semibold py-2 px-3 hover:bg-emerald-50 rounded-lg no-underline">
+              <Link key={item.href} href={item.href} onClick={closeMenu} className="block rounded-lg px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
                 {item.label}
               </Link>
             ),
           )}
-          <Link href={quoteHref(locale)} onClick={() => setMobileMenuOpen(false)} className="flex justify-center btn-primary w-full py-2.5 rounded-lg no-underline mt-3">
-            {t.contact}
+          {mobileOnly.map((item) => (
+            <Link key={item.href} href={item.href} onClick={closeMenu} className="block rounded-lg px-3 py-2 font-semibold text-white no-underline hover:bg-white/10">
+              {item.label}
+            </Link>
+          ))}
+          <Link href={quoteHref(locale)} onClick={closeMenu} className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-wari-green py-3 font-semibold text-white no-underline transition-colors hover:bg-wari-green-hover">
+            {t.quoteCta}
+            <FiArrowRight size={17} />
           </Link>
-          <Link
-            href={`/${locale}/portal`}
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center gap-1.5 text-slate-400 text-xs font-medium py-2 px-3 no-underline mt-1"
-          >
-            <FiLock size={13} />
-            {t.portal}
-          </Link>
+          {isInstallable && (
+            <button onClick={handleInstallClick} className="mt-2 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium text-slate-300">
+              <FiDownload size={14} />
+              {t.installApp}
+            </button>
+          )}
         </div>
       )}
     </header>

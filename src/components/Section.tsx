@@ -24,6 +24,22 @@ export const SectionHeading: React.FC<{
   </div>
 );
 
+/** Encabezado de las secciones rediseñadas del home (render B2B aprobado). */
+export const HomeHeading: React.FC<{
+  eyebrow: string;
+  title: string;
+  subtitle?: string;
+  center?: boolean;
+}> = ({ eyebrow, title, subtitle, center }) => (
+  <div className={center ? 'mx-auto max-w-5xl text-center' : ''}>
+    <p className="mb-3 text-sm font-bold uppercase tracking-[0.14em] text-wari-green">{eyebrow}</p>
+    <h2 className="font-body! text-balance text-3xl font-bold tracking-tight text-wari-navy sm:text-4xl lg:text-[clamp(2.4rem,3.1vw,3.25rem)] lg:leading-[1.1]">
+      {title}
+    </h2>
+    {subtitle && <p className="mt-4 text-base leading-relaxed text-slate-700 sm:text-lg lg:text-xl">{subtitle}</p>}
+  </div>
+);
+
 /** Cabecera oscura de las páginas internas. */
 export const PageHeader: React.FC<{
   eyebrow: string;

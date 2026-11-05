@@ -17,20 +17,20 @@ export const AuthorityBar: React.FC<{ locale: Locale }> = ({ locale }) => {
   ].filter(Boolean) as { v: string; pre?: string; l: string }[];
 
   return (
-    <section className="bg-white border-b border-slate-200">
-      <div className="container py-10">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-6">
+    <section className="border-b border-slate-200 bg-white">
+      <div className="mx-auto max-w-[1624px] py-10 safe-x lg:py-12">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
           {stats.map((s) => (
-            <div key={s.l} className="text-center lg:text-left lg:border-l lg:border-slate-200 lg:pl-6 first:border-0 first:pl-0">
+            <div key={s.l} className="lg:border-l lg:border-slate-200 lg:pl-8 lg:first:border-0 lg:first:pl-0">
               {/* El antetítulo reserva su línea aunque esté vacío, para alinear las cifras */}
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 h-4">{s.pre}</div>
-              <div className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-headings">{s.v}</div>
-              <div className="text-xs sm:text-sm font-medium text-slate-500 mt-1">{s.l}</div>
+              <div className="h-4 text-[11px] font-bold uppercase tracking-[0.14em] text-wari-green">{s.pre}</div>
+              <div className="mt-1 text-3xl font-bold tracking-tight text-wari-navy sm:text-4xl lg:text-5xl">{s.v}</div>
+              <div className="mt-1 text-sm font-medium text-slate-600 lg:text-base">{s.l}</div>
             </div>
           ))}
         </div>
         {company.plant.sanitaryPermit && (
-          <div className="mt-8 flex justify-center lg:justify-start">
+          <div className="mt-8 flex">
             <SanitarySeal label={t.plant} />
           </div>
         )}

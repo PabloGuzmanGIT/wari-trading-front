@@ -23,10 +23,10 @@ export default async function LocaleHomePage({
     <div className="flex flex-col">
       <Hero locale={locale} />
       <AuthorityBar locale={locale} />
-      <CapacityChain locale={locale} />
-      <ProductCards locale={locale} />
-      <MaquilaBanner locale={locale} />
       <OriginTeaser locale={locale} />
+      <ProductCards locale={locale} />
+      <CapacityChain locale={locale} />
+      <MaquilaBanner locale={locale} />
       <EudrTeaser locale={locale} />
       <MarketTeaser locale={locale} />
       <section className="section-padding bg-white">

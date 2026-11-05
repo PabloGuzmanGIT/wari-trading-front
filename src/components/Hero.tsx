@@ -2,72 +2,91 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Locale } from '@/locales/translations';
-import { pages, needRoute, type NeedKey } from '@/locales/pages';
-import { FiArrowRight, FiPackage, FiTool, FiTag, FiShield } from 'react-icons/fi';
+import { pages, routes, quoteHref, type HeroHighlightKey } from '@/locales/pages';
+import { media } from '@/lib/media';
+import { FiArrowRight, FiMail } from 'react-icons/fi';
+import { TbBox, TbBuildingFactory2, TbLeaf, TbMountain } from 'react-icons/tb';
 
-const ICONS: Record<NeedKey, React.ComponentType<{ size?: number; className?: string }>> = {
-  grain: FiPackage,
-  processing: FiTool,
-  brand: FiTag,
-  eudr: FiShield,
+const HIGHLIGHTS: Record<HeroHighlightKey, {
+  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  href: string;
+  iconCls: string;
+}> = {
+  origin: { Icon: TbMountain, href: routes.origin, iconCls: 'text-wari-lime' },
+  processing: { Icon: TbBuildingFactory2, href: routes.maquila, iconCls: 'text-white' },
+  quality: { Icon: TbLeaf, href: routes.traceability, iconCls: 'text-wari-lime' },
+  b2b: { Icon: TbBox, href: routes.privateLabel, iconCls: 'text-white' },
 };
 
 export const Hero: React.FC<{ locale: Locale }> = ({ locale }) => {
   const t = pages[locale].home.hero;
+  const image = media.HOME_HERO;
 
   return (
-    <section className="relative bg-[#0f172a] text-white overflow-hidden">
-      {/* TODO: reemplazar por foto/video propio (planta o almacén) cuando esté seleccionado. */}
+    <section className="relative isolate overflow-hidden bg-[#10231f] text-white">
       <Image
-        src="/images/apurimac_jungle.jpg"
-        alt={t.imageAlt}
+        src={image.src}
+        alt={image.alt[locale]}
         fill
         preload
         sizes="100vw"
-        className="object-cover object-center"
+        className="-z-20 object-cover object-[74%_center] lg:object-center"
       />
-      <div className="absolute inset-0 bg-[#0f172a]/75" aria-hidden="true" />
+      <div className="absolute inset-0 -z-10 bg-[#10231f]/60 lg:bg-transparent lg:bg-[linear-gradient(90deg,rgba(16,35,31,.88)_0%,rgba(16,35,31,.6)_32%,rgba(16,35,31,0)_60%)]" aria-hidden="true" />
+      <div className="absolute inset-x-0 bottom-0 -z-10 h-1/3 bg-gradient-to-t from-[#10231f]/90 to-transparent" aria-hidden="true" />
 
-      <div className="relative container pt-16 pb-12 sm:pt-24 sm:pb-16">
-        <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-2 border border-white/20 text-emerald-200 font-medium px-3 py-1.5 rounded-full text-xs tracking-wider uppercase mb-6 bg-white/5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
-            {t.badge}
-          </span>
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.06] mb-6 text-balance">
-            {t.title}
+      <div className="mx-auto flex max-w-[1624px] flex-col justify-between safe-x lg:min-h-[min(46vw,804px)]">
+        <div className="max-w-[780px] pt-14 pb-10 sm:pt-20 lg:pt-[6.2vw] lg:pb-10">
+          <p className="mb-4 text-xs font-medium uppercase tracking-[0.28em] text-white/90 sm:text-sm sm:tracking-[0.34em]">
+            {t.eyebrow}
+          </p>
+          <h1 className="font-body! text-[2.5rem] font-bold leading-[1.04] tracking-tight sm:text-5xl lg:text-[clamp(3.25rem,4.34vw,4.75rem)] lg:leading-[0.97]">
+            {t.titleLead}{' '}
+            <span className="block text-wari-lime">{t.titleAccent}</span>
           </h1>
-          <p className="text-slate-300 text-base sm:text-xl leading-relaxed max-w-2xl">
+          <p className="mt-5 max-w-[680px] text-base leading-relaxed text-white/90 sm:text-lg lg:mt-7 lg:text-[clamp(1.2rem,1.46vw,1.6rem)] lg:leading-[1.3]">
             {t.subtitle}
           </p>
-        </div>
-
-        <div className="mt-12 sm:mt-16">
-          <div className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400 mb-4">{t.doorsTitle}</div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {t.doors.map((d) => {
-              const Icon = ICONS[d.key];
-              return (
-                <Link
-                  key={d.key}
-                  href={`/${locale}${needRoute[d.key]}`}
-                  className="group flex flex-col gap-3 rounded-2xl border border-white/15 bg-white/[0.06] hover:bg-white/[0.12] hover:border-emerald-300/60 p-5 no-underline transition-colors backdrop-blur-sm"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
-                      <Icon size={20} />
-                    </span>
-                    <FiArrowRight className="text-slate-400 group-hover:text-white group-hover:translate-x-1 transition-transform" />
-                  </div>
-                  <div>
-                    <div className="font-headings font-bold text-white text-lg leading-snug">{d.t}</div>
-                    <div className="text-sm text-slate-300 mt-1">{d.d}</div>
-                  </div>
-                </Link>
-              );
-            })}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-5 lg:mt-10 2xl:gap-6">
+            <Link
+              href={quoteHref(locale)}
+              className="inline-flex items-center justify-center gap-2.5 rounded-lg bg-wari-green px-7 py-4 font-semibold 2xl:px-9 2xl:py-5 2xl:text-lg text-white no-underline transition-colors hover:bg-wari-green-hover"
+            >
+              <FiMail size={20} />
+              {t.primaryCta}
+              <FiArrowRight size={18} />
+            </Link>
+            <Link
+              href={`/${locale}#products`}
+              className="inline-flex items-center justify-center rounded-lg border border-white/80 px-7 py-4 font-semibold 2xl:px-9 2xl:py-5 2xl:text-lg text-white no-underline transition-colors hover:bg-white/10"
+            >
+              {t.secondaryCta}
+            </Link>
           </div>
         </div>
+
+        <ul className="grid grid-cols-2 gap-y-6 pb-8 sm:pb-10 lg:grid-cols-4 lg:gap-y-0 lg:pb-12">
+          {t.highlights.map(({ key, t: title, d }, i) => {
+            const { Icon, href, iconCls } = HIGHLIGHTS[key];
+            return (
+              <li
+                key={key}
+                className={`flex lg:justify-center lg:first:justify-start ${i > 0 ? 'lg:border-l lg:border-white/25' : ''}`}
+              >
+                <Link
+                  href={`/${locale}${href}`}
+                  className="group flex items-center gap-3 pr-3 no-underline sm:gap-4 lg:gap-5 lg:py-3"
+                >
+                  <Icon strokeWidth={1.5} className={`h-9 w-9 shrink-0 sm:h-11 sm:w-11 lg:h-14 lg:w-14 2xl:h-[4.5rem] 2xl:w-[4.5rem] ${iconCls}`} />
+                  <span className="flex flex-col">
+                    <span className="text-sm font-semibold leading-snug text-white group-hover:underline sm:text-base lg:text-lg 2xl:text-[1.3rem]">{title}</span>
+                    {d && <span className="text-xs leading-snug text-white/80 sm:text-sm lg:text-base 2xl:text-[1.2rem]">{d}</span>}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     </section>
   );
